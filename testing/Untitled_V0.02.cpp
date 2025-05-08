@@ -3,6 +3,7 @@
 #include <cstdlib>
 using namespace std;
 
+string inv[12];
 string enst[10][18];
 string zal[10][19];
 string obj[1][19];
@@ -11,7 +12,7 @@ string zom[8][1];
 string haz[8][1];
 string plz[8][1];
 string ch[8][1];
-char d;
+
 char des='s';
 
 int pdes=0;
@@ -49,21 +50,24 @@ if(cpk==1){
 int main(){
 // ____________________________________________________main
 
-wps[0]="kudla";
-wps[1]="basebolka";
-wps[2]="velky kyj";
-wps[3]="dyka";
-wps[4]="kopi";
-wps[5]="katana";
-wps[6]="motorová pila";
+wps[0]="       kudla        ";
+wps[1]="     basebolka      ";
+wps[2]="     velky kyj      ";
+wps[3]="        dyka        ";
+wps[4]="        kopi        ";
+wps[5]="       katana       ";
+wps[6]="    motorová pila   ";
 
-fwps[0]="hazecí nože";
-fwps[1]="luk";
+fwps[0]="    hazecí nože     ";
+fwps[1]="        luk         ";
 fwps[2]="polo-automaticka kus";
-fwps[3]="plamenomet";
+fwps[3]="     plamenomet     ";
 
 sp = rand() % 20;
 
+for (int u=1; u!=13; u++){
+        inv[u-1]="                    ";
+}
 
 for (int u=1; u!=5; u++){
         ihaz[u-1]=0;
@@ -312,7 +316,7 @@ obj[0][pihaz[2]]= "     <  ";
 pdes=4;
 do{
 cout << "Co chces podniknout? " << endl;
-cout << "- utocit (a), branit (d), healnout se (h); raidnout dum (r), otevrit truhlu(o),spipnout toto a zbyla rozhodnuti(s) -" << endl << "            ";
+cout << "- utocit (a), branit (d), healnout se (h); raidnout dum (r), otevrit truhlu(o),spipnout toto a zbyla rozhodnuti(s) ukoncit (f) -" << endl << "            ";
 cin >> des;
 switch(des){
     case 'a':
@@ -331,18 +335,19 @@ switch(des){
         cout << "truhla" << endl << endl;
         break;
     case 's':
+    case 'f':
         break;
     default:
         cout << endl << endl << "bro what the fu*k?" << endl << endl;
 }
 pdes--;
-} while(pdes>1 && des!='s');
-cout << endl << cpk << ". kolo" << endl << "znovu? f/... ";
-cin >> d;
+} while(pdes>1 && des!='s' && des!='f');
+cout << endl << cpk << ". kolo" <<endl;
+
 
 
 //_________________________________________________________________________________________________________________________________________________________________________________________________
 cpk++;
-} while(d!='f');
+} while(des!='f');
 cout << "------------------------------------------------------------------------------------------------------------------------";
 }
