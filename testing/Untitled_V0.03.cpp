@@ -18,6 +18,8 @@ int chah = 5; // rozdeleni jedne vesnice
 
 char des='s'; // co chci delat
 
+int ades=1;
+
 int pdes=0; // pocet rozhodnuti
 int random; // random spawnovani
 int sp;
@@ -37,6 +39,7 @@ float s1, s2, s3;
 
 int php=20, mhp=10, mbhp=30, bhp=80;
 int prot=1;
+string inman[10][2]; //mamagment inventare
 string wps[7];
 string fwps[4];
 string healy[3];
