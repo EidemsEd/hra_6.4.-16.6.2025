@@ -1,7 +1,8 @@
-
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <limits>
+//#include <vector>
 using namespace std;
 
 string inv[10]; // inventar
@@ -20,6 +21,8 @@ char des='s'; // co chci delat
 
 int ades=1;
 
+bool post=true;
+int kpdes1=0;  // kontrola pocet rozhodnuti
 int pdes=0; // pocet rozhodnuti
 int random; // random spawnovani
 int sp;
@@ -29,6 +32,7 @@ int pihaz[3]; // projektila haz
 int pv=0; // pocet vesnic
 int cv[5]; // místo vesnice
 int cpk=1; //pocet kol
+int mvpl;
 
 int vminv=2;
 int rullete=rand() % 60;
@@ -38,27 +42,116 @@ float s1, s2, s3;
 
 
 int php=20, mhp=10, mbhp=30, bhp=80;
-int prot=1;
-string inman[10][2]; //mamagment inventare
-string wps[7];
-string fwps[4];
-string healy[3];
-int nab[4][2];
+int prot=1, kills=0;
+int inman[10][2]; //mamagment inventare
+string wps[7][2]; // zbraně
+string fwps[4][2]; //střelné zbraně
+string healy[3][2]; //healy
+int nab[4][2]; // jednotlivé náboje
 int stat[3];
 int npl;
 int gnab=(rand() % 20)+10;
 int gph=rand() % 10;
 int dnp=2;
+int gmhp[10][2];
+int aub=0;
+int pzab=0;  // počet při zabíjení
 
 char anoo;
-
 bool jetam;
 
 void utok(){
-if(enst[6][2]==" ||z|| " || enst[6][2]==" ||H|% " || enst[6][2]=="(*=*)_ "){
-    cout << endl << "lol lol lol" << endl;
+if(aub==0){
+    aub=cpk;
 }
-cout << endl << "!" << enst[6][2] << "!" << endl;
+if(aub!=cpk){
+    for(int i=1;i<11;i++){
+        gmhp[i-1][1]--;
+    }
+    aub=cpk;
+}
+if (pdes!=kpdes1){
+    for(int i=1; i<=10; i++){
+        gmhp[i-1][0]=gmhp[i-1][0]-1;
+    }
+    post=false;
+    kpdes1=pdes;
+} else{
+        post=true;
+}
+if(enst[6][2]==" ||z|| " || enst[6][2]==" ||H|% " || enst[6][2]=="(*=*)_ "){
+    cout << endl << "nebezpeci na pozici 3" << endl;
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1);
+    // mvp1 = *inman[ades];
+    if(inman[ades-1][1]==0){
+        cout << "chces " << wps[*inman[ades]][0];
+        if(post==false){
+            gmhp[0][0]=mhp - stoi(fwps[*inman[ades]][1]);
+            cout << endl << gmhp[0][0] - stoi(fwps[*inman[ades]][1]) << endl;
+        } else{
+            gmhp[0][0]=gmhp[0][0] - stoi(fwps[*inman[ades]][1]);
+            cout << endl << gmhp[0][0] - stoi(fwps[*inman[ades]][1]) << " -" << endl;
+        }
+    } else if(inman[ades-1][1]==1){
+        cout << "chces " << fwps[*inman[ades]][0];
+        if(post==false){
+            gmhp[0][0]=mhp - stoi(fwps[*inman[ades]][1]);
+        } else{
+            gmhp[0][0]=gmhp[0][0] - stoi(fwps[*inman[ades]][1]);
+        }
+    }
+    gmhp[0][1]=2;
+    enst[1][2]="   " + std::to_string(gmhp[0][0]) + "   ";
+
+
+} if(enst[6][3]==" ||z|| " || enst[6][3]==" ||H|% " || enst[6][3]=="(*=*)_ "){
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1);
+    // mvp1 = *inman[ades];
+    if(inman[ades-1][1]==0){
+        cout << "chces " << wps[*inman[ades]][0];
+        if(post==false){
+            gmhp[0][0]=mhp - stoi(fwps[*inman[ades]][1]);
+            cout << endl << gmhp[0][0] - stoi(fwps[*inman[ades]][1]) << endl;
+        } else{
+            gmhp[0][0]=gmhp[0][0] - stoi(fwps[*inman[ades]][1]);
+            cout << endl << gmhp[0][0] - stoi(fwps[*inman[ades]][1]) << " -" << endl << stoi(fwps[*inman[ades]][1]) << endl;
+        }
+    } else if(inman[ades-1][1]==1){
+        cout << "chces " << fwps[*inman[ades]][0];
+        if(post==false){
+            gmhp[0][0]=mhp - stoi(fwps[*inman[ades]][1]);
+        } else{
+            gmhp[0][0]=gmhp[0][0] - stoi(fwps[*inman[ades]][1]);
+        }
+    }
+    gmhp[0][1]=2;
+    if(gmhp[0][0]<10){
+        enst[1][3]="   " + std::to_string(gmhp[0][0]-3) + "   ";
+    } else if(gmhp[0][0]<100){
+        enst[1][3]="  " + std::to_string(gmhp[0][0]-3) + "   ";
+    }
+
+} else{
+    pdes=pdes+1;
+}
+for(int i=1; i<=10; i++){
+    if(gmhp[i-1][0]<=0){
+        cout << "ajajaj";
+        for(int i=1; i<=9; i++){
+            enst[i-1][gmhp[i-1][1]]= "       ";
+            gmhp[i-1][1]=0;
+            gmhp[i-1][0]=0;
+        }
+    }
+}
+//cout << endl << "\\" << enst[6][3] << "!" << enst[6][2]  << "!" << enst[6][1] << "!/" << zal[6][0] << "/" << endl;
+post=true;
 }
 
 // ____________________________________________________chesta
@@ -75,15 +168,17 @@ inv[0]="       kudla        ";
 inv[1]="    hazeci noze   "+ to_string(gnab);
 nab[0][0]=gnab;
 nab[0][1]=1;
-
+inman[0][0]=0;
+inman[0][1]=0;
+inman[1][0]=0;
+inman[1][1]=1;
 } else{
 //for(int i; i<6;i++){ mch[i-1]!=1
-    if(enst[7][0]=="|    | "){
-        cout << endl << rullete << endl;
+    if(enst[6][2]=="| () | " || enst[6][3]=="| () | "){
         if(rullete==60){
             cout << "nasel jsi motorovou pilu" << endl;
             for(int u=1; u!=8;u++){
-                if(wps[6]==inv[u-1]){
+                if(wps[6][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -109,19 +204,23 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=wps[6];
+                    inv[dnp-1]=wps[6][0];
+                    inman[dnp-1][0]=6;
+                    inman[dnp-1][1]=0;
                 }
             } else{
-            inv[dnp-1]=wps[6];
+            inv[dnp-1]=wps[6][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=6;
+            inman[dnp-1][1]=0;
             }
 
 
         } if(rullete==58 || rullete==59){
             cout << "našel jsi katanu" << endl;
             for(int u=1; u!=8;u++){
-                if(wps[5]==inv[u-1]){
+                if(wps[5][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -147,18 +246,22 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=wps[5];
+                    inv[dnp-1]=wps[5][0];
+                    inman[dnp-1][0]=5;
+                    inman[dnp-1][1]=0;
                 }
             } else{
-            inv[dnp-1]=wps[5];
+            inv[dnp-1]=wps[5][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=5;
+            inman[dnp-1][1]=0;
             }
 
         } if(rullete>52 && rullete<58){
             cout << "nasel jsi kopí" << endl;
             for(int u=1; u!=8;u++){
-                if(wps[4]==inv[u-1]){
+                if(wps[4][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -184,18 +287,22 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=wps[4];
+                    inv[dnp-1]=wps[4][0];
+                    inman[dnp-1][0]=4;
+                    inman[dnp-1][1]=0;
                 }
             } else{
-            inv[dnp-1]=wps[4];
+            inv[dnp-1]=wps[4][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=4;
+            inman[dnp-1][1]=0;
             }
 
         } if(rullete>48 && rullete<53){
             cout << "nasel jsi machetu" << endl;
             for(int u=1; u!=8;u++){
-                if(wps[3]==inv[u-1]){
+                if(wps[3][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -221,18 +328,22 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=wps[3];
+                    inv[dnp-1]=wps[3][0];
+                    inman[dnp-1][0]=3;
+                    inman[dnp-1][1]=0;
                 }
             } else{
-            inv[dnp-1]=wps[3];
+            inv[dnp-1]=wps[3][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=3;
+            inman[dnp-1][1]=0;
             }
 
         } if(rullete>43 && rullete<49){
             cout << "nasel jsi velky kyj" << endl;
             for(int u=1; u!=8;u++){
-                if(wps[2]==inv[u-1]){
+                if(wps[2][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -258,18 +369,22 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=wps[2];
+                    inv[dnp-1]=wps[2][0];
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=0;
                 }
             } else{
-            inv[dnp-1]=wps[2];
+            inv[dnp-1]=wps[2][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=0;
             }
 
         } if(rullete>38 && rullete<44){
             cout << "nasel jsi basebolku";
             for(int u=1; u!=8;u++){
-                if(wps[1]==inv[u-1]){
+                if(wps[1][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -295,12 +410,16 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=wps[1];
+                    inv[dnp-1]=wps[1][0];
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=0;
                 }
             } else{
-            inv[dnp-1]=wps[1];
+            inv[dnp-1]=wps[1][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=0;
             }
 
         } if(rullete>38 && rullete<39){
@@ -309,7 +428,7 @@ nab[0][1]=1;
         } if(rullete==38){
             cout << "nasel jsi plamenomet s naboji " << npl;
             for(int u=1; u!=8;u++){
-                if(fwps[3]==inv[u-1]){
+                if(fwps[3][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -335,18 +454,22 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=fwps[3];
+                    inv[dnp-1]=fwps[3][0];
+                    inman[dnp-1][0]=3;
+                    inman[dnp-1][1]=1;
                 }
             } else{
-            inv[dnp-1]=fwps[3];
+            inv[dnp-1]=fwps[3][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=3;
+            inman[dnp-1][1]=1;
             }
 
         } if(rullete==36 || rullete==37){
             cout << "nasel jsi kus s " << gnab << " sipi" << endl;
             for(int u=1; u!=8;u++){
-                if(fwps[2]==inv[u-1]){
+                if(fwps[2][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -372,18 +495,22 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=fwps[2];
+                    inv[dnp-1]=fwps[2][0];
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=1;
                 }
             } else{
-            inv[dnp-1]=fwps[2];
+            inv[dnp-1]=fwps[2][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=1;
             }
 
         } if(rullete>30 && rullete<36){
             cout << "nasel jsi luk s " << gnab << " sipi" << endl;
             for(int u=1; u!=8;u++){
-                if(fwps[1]==inv[u-1]){
+                if(fwps[1][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -409,55 +536,26 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=fwps[1];
+                    inv[dnp-1]=fwps[1][0];
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=1;
                 }
             } else{
-            inv[dnp-1]=fwps[1];
+            inv[dnp-1]=fwps[1][0];
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=1;
             }
 
         } if(rullete>15 && rullete<31){
             cout << "nasel jsi " << gnab << " hazecich nozu";
-            for(int u=1; u!=8;u++){
-                if(fwps[0]==inv[u-1]){
-                    jetam=false;
-                    cout << "tuto zbran uz mas musis si vzit jinou  ";
-                }
-            }
-
-            if(jetam==true){
-
-            cout << endl << "  ";
-            for (int u=1; u!=6; u++){
-                cout << "|" << inv[u-1] << "| ";
-            }
-            cout << endl << "  ";
-            for (int u=6; u!=11; u++){
-                cout << "|" << inv[u-1] << "| " ;
-            }
-            cout << endl;
-
-            do{
-            cout << "na jake misto ji chtete dat? ";
-            cin >> dnp;
-            if(inv[dnp-1]!="                    "){
-                cout << "chcete vvazne nahradit " << inv[dnp];
-                cout << "? (a/n) ";
-                cin >> anoo;
-                if(anoo=='a'){
-                    inv[dnp-1]=fwps[0];
-                }
-            } else{
-            inv[dnp-1]=fwps[0];
-            }
-            } while((dnp-1)>9 && anoo!='a');
-            }
+            cout << "tuto zbran uz mas musis si vzit jinou  ";
 
         } if(rullete>11 && rullete<16){
             cout << "nasel jsi " << gph << " jablek" << endl;
             for(int u=1; u!=8;u++){
-                if(healy[0]==inv[u-1]){
+                if(healy[0][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -483,19 +581,24 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=healy[0] + to_string(gnab);;
+                    inv[dnp-1]=healy[0][0] + to_string(gnab);;
+                    inman[dnp-1][0]=0;
+                    inman[dnp-1][1]=2;
                 }
             } else{
-            inv[dnp-1]=healy[0]+ to_string(gnab);;
+            inv[dnp-1]=healy[0][0] + to_string(gnab);;
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=0;
+            inman[dnp-1][1]=2;
             }
 
         } if(rullete>5 && rullete<12){
             cout << "nasel jsi " << gph << " konzerv" << endl;
             for(int u=1; u!=8;u++){
-                if(healy[1]==inv[u-1]){
+                if(healy[1][0]==inv[u-1]){
                     jetam=false;
+                    cout <<jetam;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
             }
@@ -520,18 +623,22 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=healy[1] + to_string(gnab);;
+                    inv[dnp-1]=healy[1][0] + to_string(gnab);;
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=2;
                 }
             } else{
-            inv[dnp-1]=healy[1]+ to_string(gnab);;
+            inv[dnp-1]=healy[1][0] + to_string(gnab);;
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=2;
             }
 
         } if(rullete==4 || rullete==5){
             cout << "nasel jsi jeden medkit";
             for(int u=1; u!=8;u++){
-                if(healy[2]==inv[u-1]){
+                if(healy[2][0]==inv[u-1]){
                     jetam=false;
                     cout << "tuto zbran uz mas musis si vzit jinou  ";
                 }
@@ -557,12 +664,16 @@ nab[0][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=healy[2]+ to_string(gnab);;
+                    inv[dnp-1]=healy[2][0] + to_string(gnab);;
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=2;
                 }
             } else{
-            inv[dnp-1]=healy[2]+ to_string(gnab);;
+            inv[dnp-1]=healy[2][0] + to_string(gnab);;
             }
             } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=2;
             }
 
 
@@ -573,9 +684,23 @@ nab[0][1]=1;
             php=php-1;
             cout << "napichl jsi se na past v truhle " << endl << " zivoty: " << php << endl;
         }
-    //i=6;
+
+        if (enst[6][2]=="| () | "){
+            for(int i=1; i<=9; i++){
+                enst[i-1][2]= "       ";
+            }
+        } else if (enst[6][3]=="| () | "){
+            for(int i=1; i<=9; i++){
+                enst[i-1][3]= "       ";
+        }
+        } else{
+            cout << "error 404 entity not found";
     }
-//}
+
+    } else{
+        pdes=pdes+1;
+    }
+
 cout << endl;
 }
 rullete=rand() % 12;
@@ -589,22 +714,41 @@ gph=rand() % 10;
 int main(){
 // ____________________________________________________main
 
-wps[0]="       kudla        ";
-wps[1]="     basebolka      ";
-wps[2]="     velky kyj      ";
-wps[3]="       machetu      ";
-wps[4]="        kopi        ";
-wps[5]="       katana       ";
-wps[6]="    motorová pila   ";
+// int = stoi(string);
 
-fwps[0]="    hazeci noze   ";
-fwps[1]="        luk         ";
-fwps[2]="        kus         ";
-fwps[3]="     plamenomet     ";
+wps[0][0]="       kudla        ";
+wps[1][0]="     basebolka      ";
+wps[2][0]="     velky kyj      ";
+wps[3][0]="       machetu      ";
+wps[4][0]="        kopi        ";
+wps[5][0]="       katana       ";
+wps[6][0]="    motorová pila   ";
 
-healy[0]="       jablko      ";
-healy[1]="      konzerva     ";
-healy[2]="       medkit      ";
+wps[0][1]="5";
+wps[1][1]="8";
+wps[2][1]="9";
+wps[3][1]="12";
+wps[4][1]="15";
+wps[5][1]="20";
+wps[6][1]="28";
+
+fwps[0][0]="    hazeci noze   ";
+fwps[1][0]="        luk         ";
+fwps[2][0]="        kus         ";
+fwps[3][0]="     plamenomet     ";
+
+fwps[0][1]="3";
+fwps[1][1]="7";
+fwps[2][1]="11";
+fwps[3][1]="16";
+
+healy[0][0]="       jablko      ";
+healy[1][0]="      konzerva     ";
+healy[2][0]="       medkit      ";
+
+healy[0][1]="2";
+healy[1][1]="4";
+healy[2][1]="10";
 
 sp = rand() % 20;
 gnab=(rand() % 20)+10;
@@ -625,6 +769,17 @@ for (int u=1; u!=6; u++){
 }
 for (int u=1; u!=19; u++){
         obj[0][u-1]="       ";
+}
+
+for (int u=1; u!=11; u++){
+    for (int i=1; i!=4; i++){
+        inman[u-1][i-1]=0;
+    }
+}
+
+for (int i=1; i<=10; i++){
+    gmhp[i-1][0]=-1;
+    gmhp[i-1][1]=0;
 }
 
 // ____________________________________________textury
@@ -933,6 +1088,7 @@ switch(des){
         break;
     default:
         cout << endl << endl << "bro, you good?" << endl << endl;
+        pdes=pdes+1;
 }
 pdes--;
 } while(pdes>1 && des!='s' && des!='f');
