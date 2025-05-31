@@ -47,7 +47,7 @@ int prot=1, kills=0;
 int inman[10][2]; //mamagment inventare
 string wps[7][2]; // zbraně
 string fwps[4][2]; //střelné zbraně
-string healy[3][2]; //healy
+string healy[3][3]; //healy
 int nab[4][2]; // jednotlivé náboje
 int stat[3];
 int npl;
@@ -553,6 +553,12 @@ inman[1][1]=1;
 
             invahp();
 
+            for(int i=1; i<=10; i++){
+            if(inman[i-1][0]==0 && inman[i-1][1]==2){
+                inv[i-1]=healy[0][0] + to_string(stoi(healy[0][2])+gph);
+                healy[0][2]=to_string(stoi(healy[0][2])+gph);
+
+            } else{
             do{
             cout << "na jake misto ji chtete dat? ";
             cin >> dnp;
@@ -564,6 +570,8 @@ inman[1][1]=1;
                     inv[dnp-1]=healy[0][0] + to_string(gph);;
                     inman[dnp-1][0]=0;
                     inman[dnp-1][1]=2;
+                    healy[2][2]=to_string(gph);
+                    i=11;
                 }
             } else{
             inv[dnp-1]=healy[0][0] + to_string(gph);;
@@ -571,6 +579,10 @@ inman[1][1]=1;
             } while((dnp-1)>9 && anoo!='a');
             inman[dnp-1][0]=0;
             inman[dnp-1][1]=2;
+            healy[2][2]=to_string(gph);
+            i=11;
+            }
+            }
             }
 
         } if(rullete>5 && rullete<12){
@@ -587,6 +599,11 @@ inman[1][1]=1;
 
             invahp();
 
+            for(int i=1; i<=10; i++){
+            if(inman[i-1][0]==1 && inman[i-1][1]==2){
+                inv[i-1]=healy[1][0] + to_string(stoi(healy[1][2])+gph);
+                healy[1][2]=to_string(stoi(healy[1][2])+gph);
+            } else{
             do{
             cout << "na jake misto ji chtete dat? ";
             cin >> dnp;
@@ -598,6 +615,8 @@ inman[1][1]=1;
                     inv[dnp-1]=healy[1][0] + to_string(gph);
                     inman[dnp-1][0]=1;
                     inman[dnp-1][1]=2;
+                    healy[2][2]=to_string(gph);
+                    i=11;
                 }
             } else{
             if(gph<10){
@@ -609,6 +628,10 @@ inman[1][1]=1;
             } while((dnp-1)>9 && anoo!='a');
             inman[dnp-1][0]=1;
             inman[dnp-1][1]=2;
+            healy[2][2]=to_string(gph);
+            i=11;
+            }
+            }
             }
 
         } if(rullete==4 || rullete==5){
@@ -623,7 +646,11 @@ inman[1][1]=1;
             if(jetam==true){
 
             invahp();
-
+            for(int i=1; i<=10; i++){
+            if(inman[i-1][0]==2 && inman[i-1][1]==2){
+                inv[i-1]=healy[2][0] + to_string(stoi(healy[2][2])+gph);
+                healy[2][2]=to_string(stoi(healy[2][2])+gph);
+            } else{
             do{
             cout << "na jake misto ji chtete dat? ";
             cin >> dnp;
@@ -632,18 +659,23 @@ inman[1][1]=1;
                 cout << "? (a/n) ";
                 cin >> anoo;
                 if(anoo=='a'){
-                    inv[dnp-1]=healy[2][0] + to_string(gph);;
+                    inv[dnp-1]=healy[2][0] + to_string(gph);
                     inman[dnp-1][0]=2;
                     inman[dnp-1][1]=2;
+                    healy[2][2]=to_string(gph);
+                    i=11;
                 }
             } else{
-            inv[dnp-1]=healy[2][0] + to_string(gph);;
+            inv[dnp-1]=healy[2][0] + to_string(gph);
             }
             } while((dnp-1)>9 && anoo!='a');
             inman[dnp-1][0]=2;
             inman[dnp-1][1]=2;
+            healy[2][2]=to_string(gph);
+            i=11;
             }
-
+            }
+            }
 
         } if(rullete==2 || rullete==3){
             cout << "nic jsi nenasel, musis hledat dal " << endl;
