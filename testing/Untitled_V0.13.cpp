@@ -1,4 +1,4 @@
-đ#include <iostream>
+#include <iostream>
 #include <cstdlib>
 #include <string>
 #include <limits>
@@ -60,7 +60,7 @@ int aub=1;
 int pzab=0;  // poèet pøi zabíjení
 int pohel=0;  // pozice vybirani healu
 int funfuj;
-//int pmhealu[10];  //počet a pozice healu pri zbirani
+int hehelp;
 
 char anoo;
 bool jetam;  // zbraò je už v inv
@@ -82,7 +82,6 @@ cout << endl << "                                                  hp:  " << php
 }
 
 void airstrike(){
-cout << "lol";
 for(int i=1; i<=3; i++){
     if(ihaz[i-1]>1){
         if(shld!=true)
@@ -119,6 +118,14 @@ for(;php>20;php--){
     cout << php;
 }
 healy[funfuj][2]=to_string(stoi(healy[funfuj][2])-1);
+hehelp=stoi(healy[funfuj][2])-1;
+
+if(hehelp<10){
+    inv[pohel]=healy[funfuj][0] + " " + healy[funfuj][2];
+} else{
+    inv[pohel]=healy[funfuj][0] + healy[funfuj][2];
+}
+
 } else{
 pdes=pdes+1;
 }
@@ -169,7 +176,7 @@ if (pph!=kpdes1){
             gmhp[poshp[0]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[0]][0]=gmhp[poshp[0]][0] - stoi(fwps[*inman[ades]][1]);
-            cout << endl << gmhp[poshp[0]][0] - stoi(fwps[*inman[ades]][1]) << " -" << endl << mhp - stoi(fwps[*inman[ades]][1]) << " -" << endl << stoi(fwps[*inman[ades]][1]) << endl << gmhp[poshp[0]][0];
+            cout << " -" <<  gmhp[poshp[0]][0];
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
@@ -185,9 +192,8 @@ if (pph!=kpdes1){
     } else if(gmhp[poshp[0]][0]<100){
         zal[1][1]="  " + std::to_string(gmhp[poshp[0]][0]-3) + "   ";
     }
-    cout << endl << "//" << gmhp[poshp[0]][0] << "//" << aub << endl;
     if (gmhp[poshp[0]][0]<1){
-        cout << "hej ";
+        cout << ",.,";
         kills=kills+1;
         for(int i=1; i<=10; i++){
             zal[i-1][1]= "       ";
@@ -205,10 +211,10 @@ if (pph!=kpdes1){
         cout << "chces " << wps[*inman[ades]][0];
         if(post==false){
             gmhp[poshp[0]][0]=mhp - stoi(fwps[*inman[ades]][1]);
-            cout << endl << gmhp[poshp[0]][0] - stoi(fwps[*inman[ades]][1]) << endl;
+            cout << endl << gmhp[poshp[0]][0];
         } else{
             gmhp[poshp[0]][0]=gmhp[poshp[0]][0] - stoi(fwps[*inman[ades]][1]);
-            cout << endl << gmhp[poshp[0]][0] - stoi(fwps[*inman[ades]][1]) << " -" << endl;
+            cout << endl << gmhp[poshp[0]][0] << " -";
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
@@ -287,22 +293,25 @@ post=true;
 
 void jetu(){
 if(zal[6][1]==" ||z|| "){
-    cout << "ha! you ded. ";
-    php=php-5;
+    if(shld!=true){
+            php=php-5;
+    }
 
 for(int i=1; i<9; i++){
     enst[i-1][2]=zom[i-1][0];
 }
 } if(zal[6][1]==" ||H|% "){
-    cout << "ha! you ded. ";
-    php=php-3;
+    if(shld!=true){
+            php=php-3;
+    }
 
 for(int i=1; i<9; i++){
     enst[i-1][2]=haz[i-1][0];
 }
 } if(zal[6][1]=="(*=*)_ "){
-    cout << "ha! you ded. ";
-    php=php-2;
+    if(shld!=true){
+            php=php-2;
+    }
 
 for(int i=1; i<9; i++){
     enst[i-1][2]=plz[i-1][0];
@@ -1045,7 +1054,7 @@ for (int i=1; i!=9; i++){
 do{
 
 // ___________________________________posouvání_pozadí
-
+cout << "   ";
 for (int i=1;i!=19;i++){
     if(i<10){
        cout << "     " << i;
@@ -1235,12 +1244,9 @@ shld=false;
 
 jetu();
 
-for (int i=1; i<9; i++){
-    cout << zal[i-1][1] << "++";
-}
-cout << "-" << endl;
+
 //_________________________________________________________________________________________________________________________________________________________________________________________________
 cpk++;
-} while(des!='f');
-cout << "------------------------------------------------------------------------------------------------------------------------";
+} while(des!='f' && php>0);
+cout << "Peace at last";
 }
