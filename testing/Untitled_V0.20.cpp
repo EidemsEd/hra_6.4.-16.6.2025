@@ -24,7 +24,6 @@ char des='s'; // co chci delat
 
 int ades=1;
 
-bool post=true;
 int pph=0;
 int pph1=0;
 int kpdes1=0;  // kontrola pocet rozhodnuti
@@ -48,6 +47,7 @@ float s1, s2, s3;
 
 
 int php=20, mhp=10, mbhp=30, bhp=80;  // player hp; mob hp, midboss hp; final boss hp
+int mbhp1=mbhp;
 int kills=0;  // killy
 int inman[10][2]; //mamagment inventare
 string wps[7][2]; // zbranì
@@ -76,7 +76,11 @@ bool shld;
 bool vzdlog;  // jestli se dá střílet
 char blivzd;  // bude se útočit na blízko nebo na dálku
 int mist;  // vybrat místo na střelu z dálky
-int n=1;  // koliktrát se už útočilo
+int pmb=-1;  // posunuti minibosse
+
+
+int phvb=3;  // pocez hazecu v casti 2 a 4
+
 
 
 //_________________________________________________________________________________________________________________________________________________________________________________inv
@@ -177,32 +181,6 @@ if(enst[6][2]==" ||z|| " || enst[6][2]==" ||H|% " || enst[6][2]=="(*=*)_ " || en
     }
     aub++;
 }
-post=true;
-
-if (pph!=kpdes1){
-    for(int i=1; i<=10; i++){
-        gmhp[i-1][1]=gmhp[i-1][1]-1;
-    }
-    post=false;
-    kpdes1=pph;
-    if(poshp[0]==9){
-        poshp[0]=0;
-    } else{
-        poshp[0]=1+poshp[0];
-    }
-    if(poshp[1]==9){
-        poshp[1]=0;
-    } else{
-        poshp[1]=1+poshp[1];
-    }
-    if(poshp[3]==9){
-        poshp[3]=0;
-    } else{
-        poshp[3]=1+poshp[3];
-    }
-} else{
-        post=true;
-}
  if(zal[6][1]==" ||z|| " || zal[6][1]==" ||H|% " || zal[6][1]=="(*=*)_ "){
     cout << endl << "nebezpeci na pozici 1" << endl;
     do{
@@ -211,14 +189,14 @@ if (pph!=kpdes1){
     } while(ades>10 || ades<1);
     if(inman[ades-1][1]==0){
         cout << "chces " << wps[*inman[ades]][0];
-        if(post==false){
+        if(zal[1][1]=="       "){
             gmhp[poshp[0]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[0]][0]=stoi(enst[1][1]) - stoi(fwps[*inman[ades]][1]);
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
-        if(post==false){
+        if(zal[1][1]=="       "){
             gmhp[poshp[0]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[0]][0]=stoi(enst[1][1]) - stoi(fwps[*inman[ades]][1]);
@@ -247,14 +225,14 @@ if (pph!=kpdes1){
     // mvp1 = *inman[ades];
     if(inman[ades-1][1]==0){
         cout << "chces " << wps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][2]=="       "){
             gmhp[poshp[1]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[1]][0]=stoi(enst[1][2]) - stoi(fwps[*inman[ades]][1]);
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][2]=="       "){
             gmhp[poshp[1]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[1]][0]=stoi(enst[1][2]) - stoi(fwps[*inman[ades]][1]);
@@ -279,14 +257,14 @@ if (pph!=kpdes1){
     } while(ades>10 || ades<1);
     if(inman[ades-1][1]==0){
         cout << "chces " << wps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][3]=="       "){
             gmhp[poshp[3]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[3]][0]=stoi(enst[1][3]) - stoi(fwps[*inman[ades]][1]);
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][3]=="       "){
             gmhp[poshp[3]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[3]][0]=stoi(enst[1][2]) - stoi(fwps[*inman[ades]][1]);
@@ -321,17 +299,6 @@ for(int i=1; i<=10; i++){
 
 
 } else{
-    if (pph1!=kpdes2){
-        post=false;
-        kpdes2=pph1;
-    if(poshp[2]==9){
-        poshp[2]=0;
-    } else{
-        poshp[2]=1+poshp[2];
-    }
-    } else {
-        post=true;
-    }
     do{
         cout << "na jake misto to bude ";
         cin >> mist;
@@ -340,10 +307,12 @@ for(int i=1; i<=10; i++){
     cout << "na jakem policku chces vzit zbran? ";
     cin >> ades;
     } while(ades>10 || ades<1 && inman[ades-1][1]==1);
-    cout << "chces " << fwps[*inman[ades-1]][0];
-    if(post==false){
+    cout << "chces " << fwps[*inman[ades-1]][0] << "|" << enst[1][mist-1] << "|";
+    if(enst[1][mist-1]=="       "){
+        cout << "1";
         gmhp[poshp[2]][0]=mhp - stoi(fwps[*inman[ades-1]][1]);
     } else{
+        cout << "2";
         gmhp[poshp[2]][0]=stoi(enst[1][mist-1]) - stoi(fwps[*inman[ades-1]][1]);
     }
 
@@ -366,35 +335,33 @@ for(int i=1; i<=10; i++){
         }
     }
 }
-n++;
-post=true;
 }
 
 
 
 void jetu(){
+cout << zal[6][1] << zal[6][2] << zal[6][3] << endl;
 postr=true;
-if(zal[6][2]==" ||z|| "){
-    postr=false;
+if(zal[6][3]==" ||z|| "){
     for(int i=1; i<9; i++){
-        enst[i-1][2]=zom[i-1][0];
-
+        zal[i-1][4]=zom[i-1][0];
+        zal[i-1][4]=zom[i-1][0];
     }
     if(shld!=true){
             php=php-5;
     }
-} if(zal[6][1]==" ||H|% "){
+} if(zal[6][3]==" ||H|% "){
     postr=false;
     for(int i=1; i<9; i++){
-        enst[i-1][2]=haz[i-1][0];
+        enst[i-1][3]=haz[i-1][0];
     }
     if(shld!=true){
             php=php-3;
     }
-} if(zal[6][1]=="(*=*)_ "){
+} if(zal[6][3]=="(*=*)_ "){
     postr=false;
     for(int i=1; i<9; i++){
-        enst[i-1][2]=plz[i-1][0];
+        enst[i-1][3]=plz[i-1][0];
     }
     if(shld!=true){
             php=php-2;
@@ -928,7 +895,7 @@ if(enst[6][2]==" | | O|" || zal[6][1]==" | | O|" || enst[6][2]=="      |" || zal
     }
 
 cout << endl;
-rullete=rand() % 12;
+rullete=rand() % 60+1;
 gnab=(rand() % 20)+10;
 
 gph=rand() % 10;
@@ -957,7 +924,7 @@ inman[1][1]=1;
 for(int i=1; i<=9; i++){
     enst[i-1][2]= "       ";
 } } else{
-//for(int i; i<6;i++){ mch[i-1]!=1
+
     if(zal[6][1]=="| () | " || enst[6][2]=="| () | " || enst[6][3]=="| () | "){
         if(rullete==60){
             cout << "nasel jsi motorovou pilu" << endl;
@@ -1261,7 +1228,7 @@ for(int i=1; i<=9; i++){
             }
 
         } if(rullete>15 && rullete<31){
-            cout << "nasel jsi " << gph << " hazecich nozu";
+            cout << "nasel jsi " << gph << " ponicenich hazecich nozu nelze je pouzivat";
             cout << "tuto zbran uz mas musis si vzit jinou  ";
 
         } if(rullete>11 && rullete<16){
@@ -1470,14 +1437,21 @@ for(int i=1; i<=9; i++){
 
 cout << endl;
 }
-rullete=rand() % 12;
+rullete=rand() % 60+1;
 gnab=(rand() % 20)+10;
 
 gph=rand() % 10;
 }
 
+void mibos(){
 
+}
 
+void ahaz(){
+    if(phvb>0){
+
+    }
+}
 
 
 
@@ -1615,14 +1589,14 @@ ch[5][0]=" _____ ";
 ch[6][0]="| () | ";
 ch[7][0]="|    | ";
 
-pla[0][0]="       ";
-pla[1][0]="       ";
-pla[2][0]=" .___  ";
-pla[3][0]=" |. ,| ";
-pla[4][0]=" | _ | ";
-pla[5][0]="  \\ /  ";
-pla[6][0]=" ||0|| ";
-pla[7][0]="  |||  ";
+pla[0][0]="      ";
+pla[1][0]="      ";
+pla[2][0]=" .___ ";
+pla[3][0]=" |. ,|";
+pla[4][0]=" | _ |";
+pla[5][0]="  \\ / ";
+pla[6][0]=" ||0||";
+pla[7][0]="  ||| ";
 
 
 
@@ -1675,7 +1649,7 @@ for (int i=1; i!=9; i++){
     }
 }
 for (int i=1; i!=9; i++){
-    enst[i][18]= "       ";
+    enst[i][18]= "      ";
 }
 for (int i=1; i!=9; i++){
     for (int u=2; u!=18; u++){
@@ -1823,6 +1797,7 @@ switch(des){
         break;
     case 's':
     case 'f':
+    case 'g':
         break;
     default:
         cout << endl << "bro, you good?" << endl;
@@ -1836,7 +1811,6 @@ pph=pph+1;
 cout << shld << "-" << endl;
 if(shld!=true){
     airstrike();
-
 }
 jetu();
 shld=false;
@@ -1844,9 +1818,9 @@ shld=false;
 
 //_________________________________________________________________________________________________________________________________________________________________________________________________
 cpk++;
-} while (kills<21 && des!='f' && php>0);
+} while (kills<21 && des!='f' && php>0 && des!='g');
 
-midbos[0]="     ____    _";
+midbos[0]="          ____    _";
 midbos[1]="   &/  *=|  / ";
 midbos[2]="   |() ()| |  ";
 midbos[3]="   |_   _| \\  ";
@@ -1855,17 +1829,120 @@ midbos[5]="  /  |x|  _/  ";
 midbos[6]=" //|  _  |    ";
 midbos[7]="   | | | |    ";
 midbos[8]="   |x| | |    ";
+if(des!='f'){
+phvb=3;
+do{
+pmb = rand() % 4+1;
 
-cout << "                      " << midbos[0] << endl;
+if(pmb==1){
+cout << "       Pripravuje se na utok" << endl;
+cout << "                           " << mbhp1 << endl;
+cout << "                " << midbos[0] << endl;
 for (int i=1; i!=9; i++){
     cout << pla[i-1][0];
     cout << "               ";
     cout << midbos[i];
     cout << "       ";
+    if(phvb>0){
     cout << haz[i-1][0];
+    if(phvb>1){
     cout << haz[i-1][0];
+    if(phvb>2){
     cout << haz[i-1][0];
+    }}}
     cout << endl;
+}
+cout << "----------------------------------------------------------------" << endl <<endl << endl;
+} else if(pmb==2){
+cout << "       Pozor utoci silne, aby te neomracil" << endl;
+cout << "            " << mbhp1 << endl;
+cout << " " << midbos[0] << endl;
+for (int i=1; i!=9; i++){
+
+    cout << pla[i-1][0];
+    cout << midbos[i];
+    cout << "               ";
+    cout << "       ";
+    if(phvb>0){
+    cout << haz[i-1][0];
+    if(phvb>1){
+    cout << haz[i-1][0];
+    if(phvb>2){
+    cout << haz[i-1][0];
+    }}}
+    cout << endl;
+}
+cout << "----------------------------------------------------------------" << endl <<endl << endl;
+} else if(pmb==3){
+cout << "       Ted do nej utoc blokuje strely na dalku" << endl;
+cout << "            " << mbhp1 << endl;
+cout << " " << midbos[0] << endl;
+for (int i=1; i!=9; i++){
+
+    cout << pla[i-1][0];
+    cout << midbos[i];
+    cout << "               ";
+    cout << "       ";
+    if(phvb>0){
+    cout << haz[i-1][0];
+    if(phvb>1){
+    cout << haz[i-1][0];
+    if(phvb>2){
+    cout << haz[i-1][0];
+    }}}
+    cout << endl;
+}
+cout << "----------------------------------------------------------------" << endl <<endl << endl;
+} else{
+cout << "       Pozor pouziva svuj retez jako bic!" << endl;
+cout << "                           " << mbhp1 << endl;
+cout << "                " << midbos[0] << endl;
+for (int i=1; i!=9; i++){
+    cout << pla[i-1][0];
+    cout << "               ";
+    cout << midbos[i];
+    cout << "       ";
+    if(phvb>0){
+    cout << haz[i-1][0];
+    if(phvb>1){
+    cout << haz[i-1][0];
+    if(phvb>2){
+    cout << haz[i-1][0];
+    }}}
+    cout << endl;
+}
+cout << "----------------------------------------------------------------" << endl <<endl << endl;
+}
+do{
+cout << "Co udelas budes, utocit do midi bosse (b), utocit na hazece (a), heal (h), skrit/vytahnout stit (d), konec (f) ";
+cin >> des;
+switch(des){
+    case 'b':
+        mibos();
+        cout << endl;
+        break;
+    case 'a':
+        ahaz();
+        cout << endl;
+        break;
+    case 'd':
+        defend();
+        cout << endl;
+        break;
+    case 'h':
+        healnuti();
+        cout << endl;
+        break;
+    case 'f':
+        break;
+    default:
+        cout << endl << "bro, you good?" << endl;
+        pdes=pdes+1;
+}
+pdes--;
+} while(pdes>1 && des!='s' && des!='f');
+mbhp1--;
+} while(mbhp1>0 && php>0 && des!='f');
 }
 
 cout << "dal jsi to" << endl;

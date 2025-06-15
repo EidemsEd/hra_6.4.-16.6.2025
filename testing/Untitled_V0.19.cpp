@@ -24,7 +24,6 @@ char des='s'; // co chci delat
 
 int ades=1;
 
-bool post=true;
 int pph=0;
 int pph1=0;
 int kpdes1=0;  // kontrola pocet rozhodnuti
@@ -76,8 +75,6 @@ bool shld;
 bool vzdlog;  // jestli se dá střílet
 char blivzd;  // bude se útočit na blízko nebo na dálku
 int mist;  // vybrat místo na střelu z dálky
-int n=1;  // koliktrát se už útočilo
-
 
 //_________________________________________________________________________________________________________________________________________________________________________________inv
 void invahp(){
@@ -177,32 +174,6 @@ if(enst[6][2]==" ||z|| " || enst[6][2]==" ||H|% " || enst[6][2]=="(*=*)_ " || en
     }
     aub++;
 }
-post=true;
-
-if (pph!=kpdes1){
-    for(int i=1; i<=10; i++){
-        gmhp[i-1][1]=gmhp[i-1][1]-1;
-    }
-    post=false;
-    kpdes1=pph;
-    if(poshp[0]==9){
-        poshp[0]=0;
-    } else{
-        poshp[0]=1+poshp[0];
-    }
-    if(poshp[1]==9){
-        poshp[1]=0;
-    } else{
-        poshp[1]=1+poshp[1];
-    }
-    if(poshp[3]==9){
-        poshp[3]=0;
-    } else{
-        poshp[3]=1+poshp[3];
-    }
-} else{
-        post=true;
-}
  if(zal[6][1]==" ||z|| " || zal[6][1]==" ||H|% " || zal[6][1]=="(*=*)_ "){
     cout << endl << "nebezpeci na pozici 1" << endl;
     do{
@@ -211,14 +182,14 @@ if (pph!=kpdes1){
     } while(ades>10 || ades<1);
     if(inman[ades-1][1]==0){
         cout << "chces " << wps[*inman[ades]][0];
-        if(post==false){
+        if(zal[1][1]=="       "){
             gmhp[poshp[0]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[0]][0]=stoi(enst[1][1]) - stoi(fwps[*inman[ades]][1]);
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
-        if(post==false){
+        if(zal[1][1]=="       "){
             gmhp[poshp[0]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[0]][0]=stoi(enst[1][1]) - stoi(fwps[*inman[ades]][1]);
@@ -247,14 +218,14 @@ if (pph!=kpdes1){
     // mvp1 = *inman[ades];
     if(inman[ades-1][1]==0){
         cout << "chces " << wps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][2]=="       "){
             gmhp[poshp[1]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[1]][0]=stoi(enst[1][2]) - stoi(fwps[*inman[ades]][1]);
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][2]=="       "){
             gmhp[poshp[1]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[1]][0]=stoi(enst[1][2]) - stoi(fwps[*inman[ades]][1]);
@@ -279,14 +250,14 @@ if (pph!=kpdes1){
     } while(ades>10 || ades<1);
     if(inman[ades-1][1]==0){
         cout << "chces " << wps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][3]=="       "){
             gmhp[poshp[3]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[3]][0]=stoi(enst[1][3]) - stoi(fwps[*inman[ades]][1]);
         }
     } else if(inman[ades-1][1]==1){
         cout << "chces " << fwps[*inman[ades]][0];
-        if(post==false){
+        if(enst[1][3]=="       "){
             gmhp[poshp[3]][0]=mhp - stoi(fwps[*inman[ades]][1]);
         } else{
             gmhp[poshp[3]][0]=stoi(enst[1][2]) - stoi(fwps[*inman[ades]][1]);
@@ -321,17 +292,6 @@ for(int i=1; i<=10; i++){
 
 
 } else{
-    if (pph1!=kpdes2){
-        post=false;
-        kpdes2=pph1;
-    if(poshp[2]==9){
-        poshp[2]=0;
-    } else{
-        poshp[2]=1+poshp[2];
-    }
-    } else {
-        post=true;
-    }
     do{
         cout << "na jake misto to bude ";
         cin >> mist;
@@ -340,10 +300,12 @@ for(int i=1; i<=10; i++){
     cout << "na jakem policku chces vzit zbran? ";
     cin >> ades;
     } while(ades>10 || ades<1 && inman[ades-1][1]==1);
-    cout << "chces " << fwps[*inman[ades-1]][0];
-    if(post==false){
+    cout << "chces " << fwps[*inman[ades-1]][0] << "|" << enst[1][mist-1] << "|";
+    if(enst[1][mist-1]=="       "){
+        cout << "1";
         gmhp[poshp[2]][0]=mhp - stoi(fwps[*inman[ades-1]][1]);
     } else{
+        cout << "2";
         gmhp[poshp[2]][0]=stoi(enst[1][mist-1]) - stoi(fwps[*inman[ades-1]][1]);
     }
 
@@ -366,18 +328,19 @@ for(int i=1; i<=10; i++){
         }
     }
 }
-n++;
-post=true;
 }
 
 
 
 void jetu(){
+cout << enst[6][2] << enst[6][3] << endl;
 postr=true;
-if(zal[6][2]==" ||z|| "){
+if(zal[6][1]==" ||z|| "){
     postr=false;
     for(int i=1; i<9; i++){
-        enst[i-1][2]=zom[i-1][0];
+        enst[i-1][4]=zom[i-1][0];
+        zal[i-1][4]=zom[i-1][0];
+        cout << enst[i-1][4] << endl;
 
     }
     if(shld!=true){
@@ -1615,14 +1578,14 @@ ch[5][0]=" _____ ";
 ch[6][0]="| () | ";
 ch[7][0]="|    | ";
 
-pla[0][0]="       ";
-pla[1][0]="       ";
-pla[2][0]=" .___  ";
-pla[3][0]=" |. ,| ";
-pla[4][0]=" | _ | ";
-pla[5][0]="  \\ /  ";
-pla[6][0]=" ||0|| ";
-pla[7][0]="  |||  ";
+pla[0][0]="      ";
+pla[1][0]="      ";
+pla[2][0]=" .___ ";
+pla[3][0]=" |. ,|";
+pla[4][0]=" | _ |";
+pla[5][0]="  \\ / ";
+pla[6][0]=" ||0||";
+pla[7][0]="  ||| ";
 
 
 

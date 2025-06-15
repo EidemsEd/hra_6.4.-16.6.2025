@@ -106,16 +106,7 @@ for(int i=1; i<=3; i++){
 
 //_________________________________________________________________________________________________________________________________________________________________________________ defend
 void defend(){
-for(int i=1; i<=3; i++){
-    if(ihaz[i-1]>1){
-        shld=true;
-        cout << "schoval jsi se pred projektyly. ";
-    } if(zal[6][1]==" ||z|| " || zal[6][1]==" ||H|% " || zal[6][1]=="(*=*)_ "){
-        shld=true;
-        cout << "defendujes se pred zombiky. ";
-        break;
-    }
-}
+shld=true;
 }
 
 
@@ -171,7 +162,7 @@ for (int i=2; i<=18; i++){
 
 if(blivzd=='n'){
 
-if(enst[6][2]==" ||z|| " || enst[6][2]==" ||H|% " || enst[6][2]=="(*=*)_ " || enst[6][3]==" ||z|| " || enst[6][3]==" ||H|% " || enst[6][3]=="(*=*)_ "){
+if(enst[6][2]==" ||z|| " || enst[6][2]==" ||H|% " || enst[6][2]=="(*=*)_ " || enst[6][3]==" ||z|| " || enst[6][3]==" ||H|% " || enst[6][3]=="(*=*)_ " || zal[6][1]==" ||z|| " || zal[6][1]==" ||H|% " || zal[6][1]=="(*=*)_ "){
     if(aub==1){
         kpdes1=pdes;
     }
@@ -1795,7 +1786,7 @@ pdes=4;
 invahp();
 
 // ___________________________________rozhodování
-
+cout << endl << shld << "-" << endl;
 do{
 cout << endl << endl << "Co chces podniknout? " << endl;
 cout << "- utocit (a), branit (d), healnout se (h); raidnout dum (r), otevrit truhlu(o),skipnout toto a zbyla rozhodnuti(s)        ukoncit (f) -                    ";
@@ -1806,7 +1797,6 @@ switch(des){
         cout << endl;
         break;
     case 'd':
-        defend();
         cout << endl;
         break;
     case 'h':
@@ -1829,9 +1819,10 @@ switch(des){
         pdes=pdes+1;
 }
 pdes--;
-
+cout << endl << shld << "-" << endl;
 } while(pdes>1 && des!='s' && des!='f');
 cout<< endl<< endl << endl << cpk << ". kolo" << endl << endl << endl;
+cout << endl << shld << "-" << endl;
 pph=pph+1;
 cout << shld << "-" << endl;
 if(shld!=true){
