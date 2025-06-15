@@ -1,0 +1,2582 @@
+#include <iostream>
+#include <cstdlib>
+#include <string>
+#include <limits>
+//#include <vector>
+using namespace std;
+
+string inv[10]; // inventar
+string enst[10][18]; // hraci plocha
+string pla[8][1];  // hráč
+string zal[10][19]; // zaloha hraci plochy
+string obj[1][19]; // plocha pro projektily
+string midbos[9];  // midboss textura
+string finbos[15][5];  // textura finálního bosse
+string hse[8][3]; // textura domku/vesnice
+string zom[8][1]; // textura zombie
+string haz[8][7]; // textura hazece
+string plz[8][1]; // textura plazice
+string ch[8][1]; // textura chesty
+
+int chah = 5; // rozdeleni jedne vesnice
+
+char des='s'; // co chci delat
+char fdes='e';  // konečné rozhodnutí o pokračování nebo ne;
+
+int ades=1;
+
+int pph=0;
+int pph1=0;
+int kpdes1=0;  // kontrola pocet rozhodnuti
+int kpdes2=0;
+int pdes=0; // pocet rozhodnuti
+int pdes1=2;  // pocet rozhodnuti pri boji s bossi
+int random; // random spawnovani
+int sp;
+int phaz=0; // pocet hazecu
+int ihaz[3]; // pozice hazecu
+int pihaz[3]; // projektila haz
+int pv=0; // pocet vesnic
+int cv[5]; // místo vesnice
+int cpk=1; //pocet kol
+int mvpl;
+
+int vminv=2;
+int rullete=rand() % 60;
+
+
+float s1, s2, s3;
+
+
+int php=30, mhp=10, mbhp=50, bhp=125;  // player hp; mob hp, midboss hp; final boss hp
+int mbhp1=mbhp;
+int kills=0;  // killy
+int Bkills=0;  // kolik jsi zabil bossů
+int inman[10][2]; //mamagment inventare
+string wps[7][2]; // zbranì
+string fwps[4][2]; //støelné zbranì
+string healy[3][3]; //healy
+int nab[4][2]; // jednotlivé náboje
+int gnab=(rand() % 20)+10;  // random vygenerované náboje
+int gph=rand() % 10;
+int dnp=2;  //
+int gmhp;  // veikost hp mobu
+int pzab=0;  // počet při zabíjení
+int pohel=0;  // pozice vybirani healu
+int funfuj;
+int hehelp;
+
+char anoo;
+bool postr=true;
+bool jetam;  // zbraò je už v inv
+bool helje;  // heal je v inv pri helovani
+bool jeheal;  // je heal v inv pro pri sebrani
+bool shld;
+int shld01=1;
+bool vzdlog;  // jestli se dá střílet
+int mist;  // vybrat místo na střelu z dálky
+int pmb=-1;  // posunuti minibosse a zároveňudává fázi posledního bosse
+
+
+int phvb=3;  // pocez hazecu v casti 2 a 4
+int pppndb=20;  //toto říká kolik killů potřebuješ na nalezení dalšího bosse
+int stun=-1;
+
+int gotsg=420;  // go outside touch some grass - max limit na killy, řekne i aby hráč šel ven se dotknout trávy
+int smula;  // šance dostat 2x sílu ůderu final bosse
+int jed;  // pokul kol bude ubíráno od hráče
+int uzbyl;  // říka jestli už finální boss afkoval v kokonu
+int snv;  // říká jestli final boss vyskoří a silně udeří
+int siud;  // silný úder od final bosse
+
+
+//_________________________________________________________________________________________________________________________________________________________________________________inv
+void invahp(){
+cout << endl << "  ";
+for (int u=1; u!=6; u++){
+    cout << "|" << inv[u-1] << "| ";
+}
+cout << endl << "  ";
+for (int u=6; u!=11; u++){
+    cout << "|" << inv[u-1] << "| " ;
+}
+cout << endl;
+cout << endl << "                                                  hp:  " << php << "  killy:  " << kills << "                    pocet zabitych bosu:  " << Bkills << "  z 3" << endl;
+}
+
+
+//_________________________________________________________________________________________________________________________________________________________________________________ ubírání pro hazení
+void airstrike(){
+for(int i=1; i<=3; i++){
+    if(ihaz[i-1]>1){
+        if(shld!=true)
+            php=php-2;
+    }
+}
+}
+
+//_________________________________________________________________________________________________________________________________________________________________________________ defend
+void defend(){
+shld=true;
+shld01=1;
+// bralo by to jen cas
+}
+
+
+//_________________________________________________________________________________________________________________________________________________________________________________heal
+void healnuti(){
+helje=false;
+for(int i=1; i<=10; i++){
+    if(inman[i-1][1]==2){
+        helje=true;
+    }
+}
+if(helje==true){
+invahp();
+do{
+cout << "jaky heal (misto) ";
+cin >> pohel;
+} while(pohel>10 && pohel<1 || inman[pohel-1][1]!=2);
+funfuj= inman[pohel-1][0];
+php=php+stoi(healy[funfuj][1]);
+for(;php>20;php--){
+}
+healy[funfuj][2]=to_string(stoi(healy[funfuj][2])-1);
+hehelp=stoi(healy[funfuj][2])-1;
+if(stoi(healy[funfuj][2])>=1){
+if(hehelp<10){
+    inv[pohel-1]=healy[funfuj][0] + " " + healy[funfuj][2];
+} else{
+    inv[pohel-1]=healy[funfuj][0] + healy[funfuj][2];
+}
+} else{
+    inv[pohel-1]="                    ";
+    inman[pohel-1][0]=10;
+    inman[pohel-1][1]=10;
+}
+cout << endl << "healnul jsi se na " << php << endl;
+
+} else{
+pdes=pdes+1;
+}
+}
+
+//_________________________________________________________________________________________________________________________________________________________________________________útok
+
+void utok(){
+
+if(zal[6][1]==" ||z|| " || zal[6][1]==" ||H|% " || zal[6][1]=="(*=*)_ "){
+    cout << endl << "nebezpeci na pozici 1" << endl;
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1);
+    if(inman[ades-1][1]==0){
+        cout << "chces " << wps[*inman[ades]][0];
+        if(zal[1][1]=="       "){
+            gmhp=mhp - stoi(wps[*inman[ades]][1]);
+        } else{
+            gmhp=stoi(zal[1][1]) - stoi(wps[*inman[ades]][1]);
+        }
+    } else if(inman[ades-1][1]==1){
+        cout << "chces " << fwps[*inman[ades-1]][0];
+        if(zal[1][1]=="       "){
+            gmhp=mhp - stoi(fwps[*inman[ades-1]][1]);
+        } else{
+            gmhp=stoi(zal[1][1]) - stoi(fwps[*inman[ades-1]][1]);
+        }
+        nab[0][0]--;
+        inv[ades-1]= fwps[0][0]+ to_string(nab[0][0]);
+        if(nab[0][0]<1){
+            inv[ades-1]="                    ";
+            nab[0][1]=-1;
+        }
+    }
+    if(gmhp<10){
+        enst[1][1]="   " + std::to_string(gmhp) + "   "; // prendat na zal
+    } else if(gmhp<100){
+        enst[1][1]="  " + std::to_string(gmhp) + "   ";
+    }
+    if (gmhp<1){
+        cout << "zabil jsi nepritele ";
+        kills=kills+1;
+        for(int i=1; i<=10; i++){
+            enst[i-1][1]= "       ";
+            zal[i-1][1]= "       ";
+        }
+    }
+
+} else if(enst[6][2]==" ||z|| " || enst[6][2]==" ||H|% " || enst[6][2]=="(*=*)_ "){
+    cout << endl << "nebezpeci na pozici 2" << endl;
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1);
+    if(inman[ades-1][1]==0){
+        cout << "chces " << wps[*inman[ades]][0];
+        if(enst[1][2]=="       "){
+            gmhp=mhp - stoi(wps[*inman[ades]][1]);
+        } else{
+            gmhp=stoi(enst[1][2]) - stoi(wps[*inman[ades]][1]);
+        }
+    } else if(inman[ades-1][1]==1){
+        cout << "chces " << fwps[*inman[ades-1]][0];
+        if(enst[1][2]=="       "){
+            gmhp=mhp - stoi(fwps[*inman[ades-1]][1]);
+        } else{
+            gmhp=stoi(enst[1][2]) - stoi(fwps[*inman[ades-1]][1]);
+        }
+        nab[0][0]--;
+        inv[ades-1]= fwps[0][0]+ to_string(nab[0][0]);
+        if(nab[0][0]<1){
+            inv[ades-1]="                    ";
+            nab[0][1]=-1;
+        }
+    }
+    enst[1][2]="   " + std::to_string(gmhp) + "   ";
+    if (gmhp<1){
+        kills=kills+1;
+        cout << "zabil jsi nepritele ";
+        for(int i=1; i<=10; i++){
+            enst[i-1][2]= "       ";
+        }
+    }
+
+
+} else if(enst[6][3]==" ||z|| " || enst[6][3]==" ||H|% " || enst[6][3]=="(*=*)_ "){
+    cout << endl << "nebezpeci na pozici 3" << endl;
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1);
+    cout << inman[ades-1][1];
+    if(inman[ades-1][1]==0){
+        cout << "chces " << wps[*inman[ades-1]][0];
+        if(enst[1][3]=="       "){
+            gmhp=mhp - stoi(wps[*inman[ades-1]][1]);
+        } else{
+            gmhp=stoi(enst[1][3]) - stoi(wps[*inman[ades-1]][1]);
+        }
+    } else if(inman[ades-1][1]==1){
+        cout << "chces " << fwps[*inman[ades-1]][0];
+        if(enst[1][3]=="       "){
+            gmhp=mhp - stoi(fwps[*inman[ades-1]][1]);
+        } else{
+            gmhp=stoi(enst[1][3]) - stoi(fwps[*inman[ades-1]][1]);
+        }
+        nab[0][0]--;
+        inv[ades-1]= fwps[0][0]+ to_string(nab[0][0]);
+        if(nab[0][0]<1){
+            inv[ades-1]="                    ";
+            nab[0][1]=-1;
+        }
+    }
+    if(gmhp<10){
+        enst[1][3]="   " + std::to_string(gmhp) + "   ";
+    } else if(gmhp<100){
+        enst[1][3]="  " + std::to_string(gmhp) + "   ";
+    }
+    if (gmhp<1){
+        cout << "zabil jsi nepritele ";
+        kills=kills+1;
+        for(int i=1; i<=10; i++){
+            enst[i-1][3]= "       ";
+        }
+    }
+
+} else{
+    pdes=pdes+1;
+}
+if(gmhp<=0){
+    gmhp=0;
+}
+
+}
+
+//_________________________________________________________________________________________________________________________________________________střelba
+
+
+
+void lodisw(){
+    do{
+        cout << "na jake misto to bude ";
+        cin >> mist;
+    } while(mist<2 || mist>18 || enst[6][mist-1]!=" ||z|| " && enst[6][mist-1]!=" ||H|% " && enst[6][mist-1]!="(*=*)_ ");
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1 && inman[ades-1][1]==1);
+    cout << "chces " << fwps[*inman[ades-1]][0];
+    if(enst[1][mist-1]=="       "){
+        gmhp=mhp - stoi(fwps[*inman[ades-1]][1]);
+    } else{
+        gmhp=stoi(enst[1][mist-1]) - stoi(fwps[*inman[ades-1]][1]);
+    }
+
+    if(gmhp<10){
+        enst[1][mist-1]="   " + std::to_string(gmhp) + "   ";
+    } else if(gmhp<100){
+        enst[1][mist-1]="  " + std::to_string(gmhp) + "   ";
+    }
+    nab[0][0]--;
+    inv[ades-1]= fwps[0][0]+ to_string(nab[0][0]);
+    if(nab[0][0]<1){
+        inv[ades-1]="                    ";
+        nab[0][1]=-1;
+    }
+    if (gmhp<1){
+        cout << "zabil jsi nepritele ";
+        kills=kills+1;
+        for(int i=1; i<=10; i++){
+            enst[i-1][mist-1]= "       ";
+        }
+    }
+}
+
+
+
+
+void jetu(){
+if(zal[6][1]==" ||z|| "){
+    if(shld!=true){
+            php=php-5;
+    }
+
+for(int i=1; i<=9; i++){
+    enst[i-1][2]=zal[i-1][1];
+}
+} if(zal[6][1]==" ||H|% "){
+    if(shld!=true){
+            php=php-3;
+    }
+
+for(int i=1; i<=9; i++){
+    enst[i-1][2]=zal[i-1][1];
+}
+} if(zal[6][1]=="(*=*)_ "){
+    if(shld!=true){
+            php=php-2;
+    }
+
+for(int i=1; i<=9; i++){
+    enst[i-1][2]=zal[i-1][1];
+}
+}
+
+}
+
+
+// ______________________________________________________________________________________________________________________________________dům
+void raiding() {
+anoo='n';
+jetam=true;
+gnab=(rand() % 20)+10;
+jeheal=false;
+if(enst[6][2]==" | | O|" || zal[6][1]==" | | O|" || enst[6][2]=="      |" || zal[6][1]=="      |"){
+        if(rullete==60){
+            cout << "nasel jsi motorovou pilu" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[6][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[6][0];
+                    inman[dnp-1][0]=6;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[6][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=6;
+            inman[dnp-1][1]=0;
+            }
+
+
+        } if(rullete==58 || rullete==59){
+            cout << "našel jsi katanu" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[5][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[5][0];
+                    inman[dnp-1][0]=5;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[5][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=5;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>52 && rullete<58){
+            cout << "nasel jsi kopi" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[4][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[4][0];
+                    inman[dnp-1][0]=4;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[4][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=4;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>48 && rullete<53){
+            cout << "nasel jsi machetu" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[3][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[3][0];
+                    inman[dnp-1][0]=3;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[3][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=3;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>43 && rullete<49){
+            cout << "nasel jsi velky kyj" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[2][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[2][0];
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[2][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>38 && rullete<44){
+            cout << "nasel jsi basebolku";
+            for(int u=1; u!=8;u++){
+                if(wps[1][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[1][0];
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[1][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete==38){
+            cout << "nasel jsi sniperku s " << gnab << " naboji";
+            for(int u=1; u!=8;u++){
+                if(fwps[3][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=fwps[3][0];
+                    inman[dnp-1][0]=3;
+                    inman[dnp-1][1]=1;
+                }
+            } else{
+            inv[dnp-1]=fwps[3][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=3;
+            inman[dnp-1][1]=1;
+            }
+
+        } if(rullete==36 || rullete==37){
+            cout << "nasel jsi kus s " << gnab << " sipi" << endl;
+            for(int u=1; u!=8;u++){
+                if(fwps[2][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=fwps[2][0];
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=1;
+                }
+            } else{
+            inv[dnp-1]=fwps[2][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=1;
+            }
+
+        } if(rullete>30 && rullete<36){
+            cout << "nasel jsi luk s " << gnab << " sipi" << endl;
+            for(int u=1; u!=8;u++){
+                if(fwps[1][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=fwps[1][0];
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=1;
+                }
+            } else{
+            inv[dnp-1]=fwps[1][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=1;
+            }
+
+        } if(rullete>11 && rullete<16){
+            cout << "nasel jsi " << gph << " jablek" << endl;
+            for(int u=1; u!=8;u++){
+                if(healy[0][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            for(int i=1; i<=10; i++){
+                cout << inman[i-1][0];
+                if(inman[i-1][1]==2 && inman[i-1][0]==0){
+                    jeheal=true;
+                }
+            }
+            if(jeheal==false){
+            invahp();
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    if(gph<10){
+                        inv[dnp-1]=healy[0][0] + " " + to_string(gph);
+                    } else if(gph<100){
+                        inv[dnp-1]=healy[0][0] + to_string(gph);
+                    }
+                    inman[dnp-1][0]=0;
+                    inman[dnp-1][1]=2;
+                    healy[0][2]=to_string(gph);
+                }
+            } else{
+            for(int i=1;i<=10;i++){
+                if(inman[i-1][1]==2){
+                    if(inman[i-1][0]==0)
+                        dnp=i;
+                }
+            }
+            if(gph<10){
+                inv[dnp-1]=healy[0][0] + " " + to_string(gph);
+            } else if(gph<100){
+                inv[dnp-1]=healy[0][0] + to_string(gph);
+            }
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=0;
+            inman[dnp-1][1]=2;
+            healy[0][2]=to_string(gph);
+            } else{
+                healy[0][2]=to_string(stoi(healy[0][2])+gph);
+                if(stoi(healy[0][2])<10){
+                    inv[dnp-1]=healy[0][0] + " " + healy[0][2];
+                } else{
+                    inv[dnp-1]=healy[0][0] + healy[0][2];
+                }
+                invahp();
+            }
+            }
+
+        } if(rullete>5 && rullete<12){
+            cout << "nasel jsi " << gph << " konzerv" << endl;
+            for(int u=1; u<=8;u++){
+                if(healy[1][0]==inv[u-1]){
+                    jetam=false;
+                    cout <<jetam;
+                    cout << "tuto vec uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+
+            for(int i=1; i<=10; i++){
+                if(inman[i-1][1]==2 && inman[i-1][0]==1){
+                    jeheal=true;
+                }
+            }
+            if(jeheal==false){
+            invahp();
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    if(gph<10){
+                        inv[dnp-1]=healy[1][0] + " " + to_string(gph);
+                    } else if(gph<100){
+                        inv[dnp-1]=healy[1][0] + to_string(gph);
+                    }
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=2;
+                    healy[1][2]=to_string(gph);
+                }
+            } else{
+            for(int i=1;i<=10;i++){
+                if(inman[i-1][1]==2){
+                    if(inman[i-1][0]==1)
+                        dnp=i;
+                }
+            }
+            if(gph<10){
+                inv[dnp-1]=healy[1][0] + " " + to_string(gph);
+            } else if(gph<100){
+                inv[dnp-1]=healy[1][0] + to_string(gph);
+            }
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=2;
+            healy[1][2]=to_string(gph);
+            } else{
+                healy[1][2]=to_string(stoi(healy[1][2])+gph);
+                if(stoi(healy[1][2])<10){
+                    inv[dnp-1]=healy[1][0] + " " + healy[1][2];
+                } else{
+                    inv[dnp-1]=healy[1][0] + healy[1][2];
+                }
+                invahp();
+            }
+            }
+
+        } if(rullete==4 || rullete==5){
+            cout << "nasel jsi " << gph << " medkitu";
+            for(int u=1; u!=8;u++){
+                if(healy[2][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+
+            for(int i=1; i<=10; i++){
+                cout << inman[i-1][0];
+                if(inman[i-1][1]==2 && inman[i-1][0]==0){
+                    jeheal=true;
+                }
+            }
+            if(jeheal==false){
+            invahp();
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    if(gph<10){
+                        inv[dnp-1]=healy[2][0] + " " + to_string(gph);
+                    } else if(gph<100){
+                        inv[dnp-1]=healy[2][0] + to_string(gph);
+                    }
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=2;
+                    healy[2][2]=to_string(gph);
+                }
+            } else{
+            for(int i=1;i<=10;i++){
+                if(inman[i-1][1]==2){
+                    if(inman[i-1][0]==2)
+                        dnp=i;
+                }
+            }
+            inv[dnp-1]=healy[2][0] + to_string(gph);
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=2;
+            if(gph<10){
+                inv[dnp-1]=healy[2][0] + " " + to_string(gph);
+            } else if(gph<100){
+                inv[dnp-1]=healy[2][0] + to_string(gph);
+            }
+            } else{
+                healy[2][2]=to_string(stoi(healy[2][2])+gph);
+                if(stoi(healy[2][2])<10){
+                    inv[dnp-1]=healy[2][0] + " " + healy[2][2];
+                } else{
+                    inv[dnp-1]=healy[2][0] + healy[2][2];
+                }
+                invahp();
+            }
+            }
+
+        } if(rullete==2 || rullete==3){
+            cout << "nic jsi nenasel, musis hledat dal " << endl;
+
+        } if(rullete==1 || rullete>15 && rullete<31 || rullete>38 && rullete<39){
+            php=php-1;
+            cout << "napichl jsi se na past v truhle " << endl << " zivoty: " << php << endl;
+        }
+
+
+        if (enst[6][2]==hse[6][0]){
+            for (int u=2; u<=4;u++){
+                for(int i=1; i<=9; i++){
+                    enst[i-1][u]= "       ";
+                }
+            }
+        } else if (enst[6][3]==hse[6][0]){
+            for (int u=3; u<=5;u++){
+                for(int i=1; i<=9; i++){
+                    enst[i-1][u]= "       ";
+                }
+            }
+        } else if (enst[6][2]==hse[6][1]){
+            for (int u=2; u<=4;u++){
+                for(int i=1; i<=9; i++){
+                    enst[i-1][u-1]= "       ";
+                }
+            }
+        } else if (enst[6][3]==hse[6][1]){
+            for (int u=3; u<=5;u++){
+                for(int i=1; i<=9; i++){
+                    enst[i-1][u-1]= "       ";
+                }
+            }
+        } else{
+            cout << "error 404 entity not found";
+    }
+
+    } else{
+        pdes=pdes+1;
+    }
+
+cout << endl;
+rullete=rand() % 60+1;
+gnab=(rand() % 20)+10;
+
+gph=rand() % 10+3;
+}
+
+
+
+// ______________________________________________________________________________________________________________________________________chesta
+void otev(){
+anoo='n';
+jetam=true;
+gnab=(rand() % 20)+10;
+jeheal=false;
+
+if(cpk==1){
+cout << "nasel jsi kudlu a " << gnab << " hazeci noze ";
+inv[0]="       kudla        ";
+inv[1]=fwps[0][0]+ to_string(gnab);
+nab[0][0]=gnab;
+nab[0][1]=1;
+inman[0][0]=0;
+inman[0][1]=0;
+inman[1][0]=0;
+inman[1][1]=1;
+for(int i=1; i<=9; i++){
+    enst[i-1][0]= "       ";
+    enst[i-1][1]= "       ";
+    enst[i-1][2]= "       ";
+    enst[i-1][3]= "       ";
+} } else{
+
+    if(zal[6][1]=="| () | " || enst[6][2]=="| () | " || enst[6][3]=="| () | "){
+        if(rullete==60){
+            cout << "nasel jsi motorovou pilu" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[6][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[6][0];
+                    inman[dnp-1][0]=6;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[6][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=6;
+            inman[dnp-1][1]=0;
+            }
+
+
+        } if(rullete==58 || rullete==59){
+            cout << "našel jsi katanu" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[5][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[5][0];
+                    inman[dnp-1][0]=5;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[5][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=5;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>52 && rullete<58){
+            cout << "nasel jsi kopi" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[4][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[4][0];
+                    inman[dnp-1][0]=4;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[4][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=4;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>48 && rullete<53){
+            cout << "nasel jsi machetu" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[3][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[3][0];
+                    inman[dnp-1][0]=3;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[3][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=3;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>43 && rullete<49){
+            cout << "nasel jsi velky kyj" << endl;
+            for(int u=1; u!=8;u++){
+                if(wps[2][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[2][0];
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[2][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>38 && rullete<44){
+            cout << "nasel jsi basebolku";
+            for(int u=1; u!=8;u++){
+                if(wps[1][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=wps[1][0];
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=0;
+                }
+            } else{
+            inv[dnp-1]=wps[1][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=0;
+            }
+
+        } if(rullete>38 && rullete<39){
+            cout << "kudlu";
+
+        } if(rullete==38){
+            cout << "nasel jsi sniperku s " << gnab << " naboji";
+            for(int u=1; u!=8;u++){
+                if(fwps[3][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=fwps[3][0];
+                    inman[dnp-1][0]=3;
+                    inman[dnp-1][1]=1;
+                }
+            } else{
+            inv[dnp-1]=fwps[3][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=3;
+            inman[dnp-1][1]=1;
+            }
+
+        } if(rullete==36 || rullete==37){
+            cout << "nasel jsi kus s " << gnab << " sipi" << endl;
+            for(int u=1; u!=8;u++){
+                if(fwps[2][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=fwps[2][0];
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=1;
+                }
+            } else{
+            inv[dnp-1]=fwps[2][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=1;
+            }
+
+        } if(rullete>30 && rullete<36){
+            cout << "nasel jsi luk s " << gnab << " sipi" << endl;
+            for(int u=1; u!=8;u++){
+                if(fwps[1][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            invahp();
+
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    inv[dnp-1]=fwps[1][0];
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=1;
+                }
+            } else{
+            inv[dnp-1]=fwps[1][0];
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=1;
+            }
+
+        } if(rullete>15 && rullete<31){
+            cout << "nasel jsi " << gph << " ponicenich hazecich nozu nelze je pouzivat";
+
+        } if(rullete>11 && rullete<16){
+            cout << "nasel jsi " << gph << " jablek" << endl;
+            for(int u=1; u!=8;u++){
+                if(healy[0][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+            for(int i=1; i<=10; i++){
+                cout << inman[i-1][0];
+                if(inman[i-1][1]==2 && inman[i-1][0]==0){
+                    jeheal=true;
+                }
+            }
+            if(jeheal==false){
+            invahp();
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    if(gph<10){
+                        inv[dnp-1]=healy[0][0] + " " + to_string(gph);
+                    } else if(gph<100){
+                        inv[dnp-1]=healy[0][0] + to_string(gph);
+                    }
+                    inman[dnp-1][0]=0;
+                    inman[dnp-1][1]=2;
+                    healy[0][2]=to_string(gph);
+                }
+            } else{
+            if(gph<10){
+                inv[dnp-1]=healy[0][0] + " " + to_string(gph);
+            } else if(gph<100){
+                inv[dnp-1]=healy[0][0] + to_string(gph);
+            }
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=0;
+            inman[dnp-1][1]=2;
+            healy[0][2]=to_string(gph);
+            } else{
+                healy[0][2]=to_string(stoi(healy[0][2])+gph);
+                if(stoi(healy[0][2])<10){
+                    inv[dnp-1]=healy[0][0] + " " + healy[0][2];
+                } else{
+                    inv[dnp-1]=healy[0][0] + healy[0][2];
+                }
+                invahp();
+            }
+            }
+
+        } if(rullete>5 && rullete<12){
+            cout << "nasel jsi " << gph << " konzerv" << endl;
+            for(int u=1; u<=8;u++){
+                if(healy[1][0]==inv[u-1]){
+                    jetam=false;
+                    cout <<jetam;
+                    cout << "tuto vec uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+
+            for(int i=1; i<=10; i++){
+                if(inman[i-1][1]==2 && inman[i-1][0]==1){
+                    jeheal=true;
+                }
+            }
+            if(jeheal==false){
+            invahp();
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    if(gph<10){
+                        inv[dnp-1]=healy[1][0] + " " + to_string(gph);
+                    } else if(gph<100){
+                        inv[dnp-1]=healy[1][0] + to_string(gph);
+                    }
+                    inman[dnp-1][0]=1;
+                    inman[dnp-1][1]=2;
+                    healy[1][2]=to_string(gph);
+                }
+            } else{
+            if(gph<10){
+                inv[dnp-1]=healy[1][0] + " " + to_string(gph);
+            } else if(gph<100){
+                inv[dnp-1]=healy[1][0] + to_string(gph);
+            }
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=1;
+            inman[dnp-1][1]=2;
+            healy[1][2]=to_string(gph);
+            } else{
+                healy[1][2]=to_string(stoi(healy[1][2])+gph);
+                if(stoi(healy[1][2])<10){
+                    inv[dnp-1]=healy[1][0] + " " + healy[1][2];
+                } else{
+                    inv[dnp-1]=healy[1][0] + healy[1][2];
+                }
+                invahp();
+            }
+            }
+
+        } if(rullete==4 || rullete==5){
+            cout << "nasel jsi jeden medkit";
+            for(int u=1; u!=8;u++){
+                if(healy[2][0]==inv[u-1]){
+                    jetam=false;
+                    cout << "tuto zbran uz mas musis si vzit jinou  ";
+                }
+            }
+
+            if(jetam==true){
+
+
+            for(int i=1; i<=10; i++){
+                cout << inman[i-1][0];
+                if(inman[i-1][1]==2 && inman[i-1][0]==0){
+                    jeheal=true;
+                }
+            }
+            if(jeheal==false){
+            invahp();
+            do{
+            cout << "na jake misto ji chtete dat? ";
+            cin >> dnp;
+            if(inv[dnp-1]!="                    "){
+                cout << "chcete vvazne nahradit " << inv[dnp];
+                cout << "? (a/n) ";
+                cin >> anoo;
+                if(anoo=='a'){
+                    if(gph<10){
+                        inv[dnp-1]=healy[2][0] + " " + to_string(gph);
+                    } else if(gph<100){
+                        inv[dnp-1]=healy[2][0] + to_string(gph);
+                    }
+                    inman[dnp-1][0]=2;
+                    inman[dnp-1][1]=2;
+                    healy[2][2]=to_string(gph);
+                }
+            } else{
+            inv[dnp-1]=healy[2][0] + to_string(gph);
+            }
+            } while((dnp-1)>9 && anoo!='a');
+            inman[dnp-1][0]=2;
+            inman[dnp-1][1]=2;
+            if(gph<10){
+                inv[dnp-1]=healy[2][0] + " " + to_string(gph);
+            } else if(gph<100){
+                inv[dnp-1]=healy[2][0] + to_string(gph);
+            }
+            } else{
+                healy[2][2]=to_string(stoi(healy[2][2])+gph);
+                if(stoi(healy[2][2])<10){
+                    inv[dnp-1]=healy[2][0] + " " + healy[2][2];
+                } else{
+                    inv[dnp-1]=healy[2][0] + healy[2][2];
+                }
+                invahp();
+            }
+            }
+
+        } if(rullete==2 || rullete==3){
+            cout << "nic jsi nenasel, musis hledat dal " << endl;
+
+        } if(rullete==1){
+            php=php-1;
+            cout << "napichl jsi se na past v truhle " << endl << " zivoty: " << php << endl;
+        }
+
+        if (zal[6][1]=="| () | " || enst[6][1]=="| () | "){
+            for(int i=1; i<=9; i++){
+                enst[i-1][1]= "       ";
+            }
+        } else if (enst[6][2]=="| () | "){
+            for(int i=1; i<=9; i++){
+                enst[i-1][2]= "       ";
+            }
+        } else if (enst[6][3]=="| () | "){
+            for(int i=1; i<=9; i++){
+                enst[i-1][3]= "       ";
+            }
+        } else{
+            cout << "error 404 entity not found";
+    }
+
+    } else{
+        pdes=pdes+1;
+    }
+
+cout << endl;
+}
+rullete=rand() % 60+1;
+gnab=(rand() % 20)+10;
+
+gph=rand() % 10+3;
+}
+
+void mibos(){
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1);
+    if(inman[ades-1][1]==0){
+        cout << "chces " << wps[*inman[ades-1]][0];
+        mbhp1=mbhp1 - stoi(wps[*inman[ades-1]][1]);
+    } else if(inman[ades-1][1]!=0 || inman[ades-1][1]!=3){
+        cout << "chces " << fwps[*inman[ades-1]][0];
+        mbhp1=mbhp1 - stoi(fwps[*inman[ades-1]][1]);
+        nab[0][0]--;
+        inv[ades-1]= fwps[0][0]+ to_string(nab[0][0]);
+        if(nab[0][0]<1){
+            inv[ades-1]="                    ";
+            nab[0][1]=-1;
+        }
+    }
+    if (mbhp1<1){
+        Bkills=Bkills+1;
+        cout << endl << "zabil jsi tveho " << Bkills << ". bosse!!!" << endl;
+    }
+}
+
+void ahaz(){
+    if(phvb>0){
+        do{
+        do{
+        cout << "na jakem policku chces vzit zbran? ";
+        cin >> ades;
+        } while(ades>10 || ades<1);
+        } while(inman[ades-1][1]!=1);
+        if(haz[1][phvb]=="       "){
+            gmhp=mhp - stoi(fwps[*inman[ades-1]][1]);
+        } else{
+            gmhp=stoi(haz[1][phvb]) - stoi(fwps[*inman[ades-1]][1]);
+        }
+
+        if(gmhp<10){
+            haz[1][phvb]="   " + std::to_string(gmhp) + "   ";
+        } else if(gmhp<100){
+            haz[1][phvb]="  " + std::to_string(gmhp) + "   ";
+        }
+        nab[0][0]--;
+        inv[ades-1]= fwps[0][0]+ to_string(nab[0][0]);
+        if(nab[0][0]<1){
+            inv[ades-1]="                    ";
+            nab[0][1]=-1;
+        }
+        if (gmhp<1){
+            cout << "zabil jsi nepritele ";
+            kills=kills+1;
+            for(int i=1; i<=10; i++){
+                haz[i-1][phvb]= "       ";
+            }
+            phvb=phvb-1;
+            cout << phvb;
+        }
+    }
+}
+
+
+
+
+
+
+
+void RozMb(){
+cout << "Co udelas budes, utocit do midi bosse (b), utocit na hazece (a), heal (h), skrit/vytahnout stit (d), konec (f): ";
+cin >> des;
+switch(des){
+    case 'b':
+        mibos();
+        cout << endl;
+        break;
+    case 'a':
+        if(pmb!=3){
+        ahaz();
+        } else{
+        cout << "minul jsi nevidis na hazece ";
+        }
+        cout << endl;
+        break;
+    case 'd':
+        defend();
+        shld=true;
+        shld01=1;
+        if(pmb==2){
+            pdes1=0;
+        }
+        cout << endl;
+        break;
+    case 'h':
+        healnuti();
+        cout << endl;
+        break;
+    case 'f':
+        break;
+    default:
+        cout << endl << "bro, you good?" << endl;
+        pdes1=pdes1+1;
+}
+pdes1--;
+}
+
+
+void Fibos(){
+    if(bhp!=55 && snv!=1){
+    do{
+    cout << "na jakem policku chces vzit zbran? ";
+    cin >> ades;
+    } while(ades>10 || ades<1);
+    if(inman[ades-1][1]==0){
+        cout << "chces " << wps[*inman[ades-1]][0];
+        bhp=bhp - stoi(wps[*inman[ades-1]][1]);
+    } else if(inman[ades-1][1]!=0 || inman[ades-1][1]!=3){
+        cout << "chces " << fwps[*inman[ades-1]][0];
+        bhp=bhp - stoi(wps[*inman[ades-1]][1]);
+        nab[0][0]--;
+        inv[ades-1]= fwps[0][0]+ to_string(nab[0][0]);
+        if(nab[0][0]<1){
+            inv[ades-1]="                    ";
+            nab[0][1]=-1;
+        }
+    }
+    if (bhp<1){
+        Bkills=Bkills+1;
+        cout << endl << endl;
+    }
+}
+}
+
+void RozFb(){
+cout << "Co udelas budes, utocit do midi bosse (b), utocit na hazece (a), heal (h), skrit/vytahnout stit (d), konec (f): ";
+cin >> des;
+switch(des){
+    case 'b':
+        Fibos();
+        cout << endl;
+        break;
+    case 'a':
+        if(pmb!=3){
+        ahaz();
+        } else{
+        cout << "minul jsi nevidis na hazece ";
+        }
+        cout << endl;
+        break;
+    case 'd':
+        defend();
+        shld=true;
+        shld01=1;
+        if(pmb==2){
+            pdes1=0;
+        }
+        cout << endl;
+        break;
+    case 'h':
+        healnuti();
+        cout << endl;
+        break;
+    case 'f':
+        break;
+    default:
+        cout << endl << "bro, you good?" << endl;
+        pdes1=pdes1+1;
+}
+pdes1--;
+}
+
+
+
+int main(){
+// ____________________________________________________main
+
+// int = stoi(string);
+
+wps[0][0]="       kudla        ";
+wps[1][0]="     basebolka      ";
+wps[2][0]="     velky kyj      ";
+wps[3][0]="       machetu      ";
+wps[4][0]="        kopi        ";
+wps[5][0]="       katana       ";
+wps[6][0]="    motorová pila   ";
+
+wps[0][1]="4";
+wps[1][1]="6";
+wps[2][1]="7";
+wps[3][1]="10";
+wps[4][1]="11";
+wps[5][1]="15";
+wps[6][1]="20";
+
+fwps[0][0]="    hazeci noze   ";
+fwps[1][0]="     lehky luk    ";
+fwps[2][0]="        kus       ";
+fwps[3][0]="      sniperka    ";
+
+fwps[0][1]="2";
+fwps[1][1]="3";
+fwps[2][1]="8";
+fwps[3][1]="15";
+
+healy[0][0]="       jablko     ";
+healy[1][0]="      konzerva    ";
+healy[2][0]="       medkit     ";
+
+healy[0][1]="2";
+healy[1][1]="4";
+healy[2][1]="12";
+
+sp = rand() % 20;
+gnab=(rand() % 20)+10;
+
+for (int u=1; u!=13; u++){
+        inv[u-1]="                    ";
+}
+
+for (int u=1; u!=5; u++){
+        ihaz[u-1]=0;
+        pihaz[u-1]=0;
+        nab[u-1][1]=20;
+}
+for (int u=1; u!=6; u++){
+        cv[u-1]=0;
+}
+for (int u=1; u!=19; u++){
+        obj[0][u-1]="       ";
+}
+
+for (int u=1; u!=11; u++){
+    for (int i=1; i!=4; i++){
+        inman[u-1][i-1]=10;
+    }
+}
+
+gmhp=mhp;
+
+
+// ____________________________________________textury
+
+hse[1][0]="       ";
+hse[1][1]="  /\\   ";
+hse[1][2]="       ";
+hse[2][0]="       ";
+hse[2][1]=" /  \\  ";
+hse[2][2]="       ";
+hse[3][0]="       ";
+hse[3][1]="/ () \\ ";
+hse[3][2]="       ";
+hse[4][0]="      /";
+hse[4][1]="      \\";
+hse[4][2]="       ";
+hse[5][0]="      |";
+hse[5][1]="  _   |";
+hse[5][2]="       ";
+hse[6][0]="      |";
+hse[6][1]=" | | O|";
+hse[6][2]="       ";
+hse[7][0]="      |";
+hse[7][1]=" | |  |";
+hse[7][2]="       ";
+
+zom[1][0]="   "+to_string(mhp)+"  ";
+zom[2][0]="  ___  ";
+zom[3][0]=" |. x| ";
+zom[4][0]=" | = | ";
+zom[5][0]="  \\ /  ";
+zom[6][0]=" ||z|| ";
+zom[7][0]="  |||  ";
+
+haz[1][0]="   "+to_string(mhp)+"  ";
+haz[2][0]="  ___, ";
+haz[3][0]="<|. .|-";
+haz[4][0]=" | = | ";
+haz[5][0]="  \\ / ;";
+haz[6][0]=" ||H|% ";
+haz[7][0]="  |||  ";
+
+//_________________________________
+
+for (int i=1; i<=8; i++){
+    for (int u=1; u<=6; u++){
+        haz[i-1][u-1]=haz[i-1][0];
+    }
+}
+
+//__________________________________
+
+plz[1][0]="   "+to_string(mhp)+"  ";
+plz[2][0]="       ";
+plz[3][0]="       ";
+plz[4][0]="       ";
+plz[5][0]=" ___   ";
+plz[6][0]="(*=*)_ ";
+plz[7][0]=" =\\__/ ";
+
+ch[1][0]="       ";
+ch[2][0]="       ";
+ch[3][0]="       ";
+ch[4][0]="       ";
+ch[5][0]=" _____ ";
+ch[6][0]="| () | ";
+ch[7][0]="|    | ";
+
+pla[0][0]="      ";
+pla[1][0]="      ";
+pla[2][0]=" .___ ";
+pla[3][0]=" |. ,|";
+pla[4][0]=" | _ |";
+pla[5][0]="  \\ / ";
+pla[6][0]=" ||0||";
+pla[7][0]="  ||| ";
+
+
+
+midbos[0]="          ____    _";
+midbos[1]="   &/  *=|  / ";
+midbos[2]="   |() ()| |  ";
+midbos[3]="   |_   _| \\  ";
+midbos[4]="   __|  |_/ / ";
+midbos[5]="  /  |x|  _/  ";
+midbos[6]=" //|  _  |    ";
+midbos[7]="   | | | |    ";
+midbos[8]="   |x| | |    ";
+
+
+ finbos[0][0]="        "+to_string(bhp)+"          ";
+ finbos[1][0]="                     ";
+ finbos[2][0]="                     ";
+ finbos[3][0]="                     ";
+ finbos[4][0]="                     ";
+ finbos[5][0]="                     ";
+ finbos[6][0]="         %           ";
+ finbos[7][0]="                     ";
+ finbos[8][0]="        ___/ \\___    ";
+ finbos[9][0]="       ( ()     )    ";
+finbos[10][0]="      /    ./--  \\   ";
+finbos[11][0]="     (            |  ";
+
+ finbos[0][1]="        "+to_string(bhp)+"          ";
+ finbos[1][1]="                     ";
+ finbos[2][1]="                     ";
+ finbos[3][1]="                     ";
+ finbos[4][1]="                     ";
+ finbos[5][1]="                     ";
+ finbos[6][1]="                     ";
+ finbos[7][1]="     _______         ";
+ finbos[8][1]="  __/       \\__      ";
+ finbos[9][1]=" /() ()        \\     ";
+finbos[10][1]="=               )    ";
+finbos[11][1]=" \\             /     ";
+
+ finbos[0][2]="        "+to_string(bhp)+"          ";
+ finbos[1][2]="                     ";
+ finbos[2][2]="                     ";
+ finbos[3][2]="                     ";
+ finbos[4][2]="      #              ";
+ finbos[5][2]=" &                   ";
+ finbos[6][2]="   %                 ";
+ finbos[7][2]="     _) (___         ";
+ finbos[8][2]="% __=       \\__      ";
+ finbos[9][2]=" /() ()        \\     ";
+finbos[10][2]="=               )    ";
+finbos[11][2]=" \\             /     ";
+
+ finbos[0][3]="        "+to_string(bhp)+"          ";
+ finbos[1][3]="                     ";
+ finbos[2][3]="                     ";
+ finbos[3][3]="                     ";
+ finbos[4][3]="        ___          ";
+ finbos[5][3]="       /   \\         ";
+ finbos[6][3]="      / ___ \\        ";
+ finbos[7][3]="     | _____ |       ";
+ finbos[8][3]="    ( ------- )      ";
+ finbos[9][3]="     | _____ |       ";
+finbos[10][3]="     | ----- |       ";
+finbos[11][3]="      \\     /        ";
+
+ finbos[0][4]="         "+to_string(bhp)+"      ";
+ finbos[1][4]=" ___     /=\\      ___";
+ finbos[2][4]=" \\  \\   |O!O|    /  /";
+ finbos[3][4]="  \\  \\   \\ /    /  / ";
+ finbos[4][4]="  \\__\\___| |___/__/  ";
+ finbos[5][4]=" / /  / _   _ \\  \\ \\ ";
+ finbos[6][4]="/_/  / / | | \\ \\  \\_\\";
+ finbos[7][4]="    / / /   \\ \\ \\    ";
+ finbos[8][4]="   !!! | ___ | !!!   ";
+ finbos[9][4]="       //   \\\\       ";
+finbos[10][4]="      ||     ||      ";
+finbos[11][4]="     //       \\\\     ";
+
+for(int i=1;i<=5;i++){
+     finbos[12][i-1]="                     ";
+     finbos[13][i-1]="                     ";
+     finbos[14][i-1]="                     ";
+}
+
+
+for (int i=1; i!=9; i++){
+    for (int u=2; u!=19; u++){
+        enst[i-1][u-1]= "      ";
+        enst[i-1][3]= "     ";
+        enst[i-1][4]= "     ";
+    }
+    cout << endl;
+}
+
+
+random=12;
+for (int i=1; i!=9; i++){
+        enst[i-1][2]=ch[i-1][0];
+}
+
+
+// ____________________________________________hlavní_cyklus
+
+do{
+do{
+
+// ___________________________________posouvání_pozadí
+cout << " ";
+for (int i=1;i!=19;i++){
+    if(i<10){
+       cout << "     " << i;
+    } else{
+        cout << "    " << i;
+    }
+}
+cout << endl;
+
+for (int u=1; u!=19; u++){
+        cout << obj[0][u-1];
+    }
+cout << endl;
+for (int i=1; i!=9; i++){
+    for (int u=2; u!=19; u++){
+        cout << enst[i-1][u-1];
+    }
+    if(i<=8){
+    cout << endl;
+    }
+}
+for (int i=1; i!=9; i++){
+    for (int u=1; u!=19; u++){
+        zal[i][u-1]=enst[i][u];
+    }
+}
+for (int i=1; i!=9; i++){
+    enst[i-1][18]= "       ";
+}
+for (int i=1; i!=9; i++){
+    for (int u=2; u!=18; u++){
+        enst[i][u]=zal[i][u];
+    }
+}
+
+// ___________________________________co_pøijde_další_na_scénu_random
+
+if(random<=5){
+    for (int i=1; i!=9; i++){
+            enst[i-1][18]=zom[i-1][0];
+    }
+} else if(random>=6 && random<=7){
+    for (int i=1; i!=9; i++){
+            enst[i-1][18]=plz[i-1][0];
+    }
+} else if(random>=8 && random<=9){
+    phaz=phaz+1;
+    if(phaz>3){
+        for(int i=1; i!=4;i++){
+            if(ihaz[i-1]<1){
+                phaz=1;
+            }
+        }
+    }
+    for (int i=1; i!=9; i++){
+            enst[i-1][18]=haz[i-1][0];
+    }
+    ihaz[phaz-1]=18;
+} else if(random==12){
+    for (int i=1; i!=9; i++){
+            enst[i-1][18]=ch[i-1][0];
+    }
+} else if(random>=10 && random<=11){
+    chah=0;
+    pv=pv+1;
+    if(pv>5){
+        for(int i=1; i!=4;i++){
+            if(cv[i-1]<1){
+                pv=1;
+            }
+        }
+    }
+    for (int i=1; i!=9; i++){
+            enst[i-1][18]=hse[i-1][chah];
+    }
+    cv[pv-1]=18;
+}
+cout << "----------------------------------------------------------------------------------------------------------------------";
+
+// ___________________________________info_o_pozici_vìcí
+
+if(chah<=2){
+    for (int i=1; i!=9; i++){
+            enst[i-1][18]=hse[i-1][chah];
+    }
+}
+
+random = rand() % 50;
+if(chah<=2){
+    random=12;
+}
+
+chah = chah+1;
+
+
+obj[0][pihaz[0]]="        ";
+obj[0][pihaz[1]]="        ";
+obj[0][pihaz[2]]="        ";
+
+ihaz[0]--;
+ihaz[1]--;
+ihaz[2]--;
+cv[0]--;
+cv[1]--;
+cv[2]--;
+cv[3]--;
+cv[4]--;
+
+
+
+// ___________________________________posouvání_projektilù
+
+s1=ihaz[0]/2;
+s2=ihaz[1]/2;
+s3=ihaz[2]/2;
+
+pihaz[0]=int(s1)-1;
+pihaz[1]=int(s2)-1;
+pihaz[2]=int(s3)-1;
+
+if(s1>1){
+if(s1==s2){
+    if(s1==s3){
+        obj[0][pihaz[0]]= " *  ,  %";
+
+    } else{
+        obj[0][pihaz[1]]= "    ,  %";
+    }
+} else{
+    obj[0][pihaz[0]]= "     %  ";
+}
+} if(s2>1){
+if(s2==s3){
+    obj[0][pihaz[1]]= "     <  ";
+}
+} if(s3>1){
+obj[0][pihaz[2]]= "     <  ";
+}
+pdes=4;
+
+// ___________________________________inventáø
+
+invahp();
+
+// ___________________________________rozhodování
+
+do{
+cout << endl << endl << "Co chces podniknout? " << endl ;
+cout << "- utocit (a), branit (d), healnout se (h); raidnout dum (r), otevrit truhlu(o), strilet na dalku (l)," << endl << "skipnout toto a zbyla rozhodnuti(s), ukoncit (f) -                    ";
+cin >> des;
+switch(des){
+    case 'a':
+        utok();
+        cout << endl;
+        break;
+    case 'd':
+        defend();
+        cout << endl;
+        break;
+    case 'h':
+        healnuti();
+        cout << endl;
+        break;
+    case 'r':
+        raiding();
+        cout  << endl;
+        break;
+    case 'o':
+        otev();
+        cout << endl;
+        break;
+    case 'l':
+        lodisw();
+        cout << endl;
+        break;
+    case 's':
+    case 'f':
+    case 'g':
+        break;
+    default:
+        cout << endl << "bro, you good?" << endl;
+        pdes=pdes+1;
+}
+pdes--;
+
+} while(kills<pppndb+1 && pdes>1 && des!='s' && des!='f');
+cout<< endl<< endl << endl << cpk << ". kolo" << endl << endl << endl;
+pph=pph+1;
+if(shld!=true){
+    airstrike();
+}
+jetu();
+shld=false;
+
+
+//_________________________________________________________________________________________________________________________________________________________________________________________________
+cpk++;
+} while (kills<pppndb && des!='f' && php>0 && des!='g');
+
+
+
+
+if(des!='f' && Bkills<2){
+pmb=1;
+phvb=3;
+stun=-1;
+pppndb=pppndb+24;
+
+do{
+
+cout << "       ";
+if(pmb==1){
+cout << "       Pripravuje se na utok" << endl;
+cout << "                           " << mbhp1 << endl;
+cout << "                " << midbos[0] << endl;
+for (int i=1; i!=9; i++){
+    cout << pla[i-1][0];
+    cout << "               ";
+    cout << midbos[i];
+    cout << "       ";
+    cout << haz[i-1][3];
+    cout << haz[i-1][2];
+    cout << haz[i-1][1];
+    cout << endl;
+}
+cout << "----------------------------------------------------------------" << endl;
+} else if(pmb==2){
+cout << "       Pozor utoci silne, aby te neomracil" << endl;
+cout << "            " << mbhp1 << endl;
+cout << " " << midbos[0] << endl;
+for (int i=1; i!=9; i++){
+
+    cout << pla[i-1][0];
+    cout << midbos[i];
+    cout << "               ";
+    cout << "       ";
+    cout << haz[i-1][3];
+    cout << haz[i-1][2];
+    cout << haz[i-1][1];
+    cout << endl;
+}
+cout << "----------------------------------------------------------------" << endl;
+} else if(pmb==3){
+cout << "       Ted do nej utoc blokuje strely na dalku" << endl;
+cout << "            " << mbhp1 << endl;
+cout << " " << midbos[0] << endl;
+for (int i=1; i!=9; i++){
+
+    cout << pla[i-1][0];
+    cout << midbos[i];
+    cout << "               ";
+    cout << "       ";
+    cout << haz[i-1][3];
+    cout << haz[i-1][2];
+    cout << haz[i-1][1];
+    cout << endl;
+}
+cout << "----------------------------------------------------------------" << endl;
+} else if(pmb==4){
+cout << "       Pozor pouziva svuj retez jako bic!" << endl;
+cout << "                           " << mbhp1 << endl;
+cout << "                " << midbos[0] << endl;
+for (int i=1; i!=9; i++){
+    cout << pla[i-1][0];
+    cout << "               ";
+    cout << midbos[i];
+    cout << "       ";
+    cout << haz[i-1][3];
+    cout << haz[i-1][2];
+    cout << haz[i-1][1];
+    cout << endl;
+}
+cout << "--------------------------------------------------------------------------------------------------" << endl;
+}
+invahp();
+if(stun<=0){
+do{
+RozMb();
+
+cout << endl << endl;
+} while(pdes1>=1 && des!='s' && des!='f' && mbhp1>0);
+}
+stun=stun-1;
+pdes1=2;
+if(shld01==0){
+if(pmb==2 || pmb==4){
+    if(pmb==2){
+        stun=2;
+        php=php-8;
+    } else if(pmb==4){
+        php=php-4;
+    }
+}}
+if(phvb>0 && shld01==0){
+    if(phvb==1){
+        php=php-2;
+    }
+    if(phvb==2){
+        php=php-4;
+    }
+    if(phvb==3){
+        php=php-5;
+    }
+}
+shld=false;
+shld01=0;
+pmb = abs(rand() % 4+1);
+
+} while(mbhp1>0 && php>0 && des!='f');
+}
+
+
+mbhp1=mbhp;
+for (int i=1; i<=8; i++){
+    for (int u=1; u<=6; u++){
+        haz[i-1][u-1]=haz[i-1][0];
+    }
+}
+
+
+
+//_____________________________________________________________________________________________________________________________________Final_Boss_____________________________________________________________
+
+if(des!='f' && Bkills==2){
+smula=rand() % 4+1;
+pppndb=gotsg;
+phvb=5;
+pdes1=2;
+uzbyl=0;
+siud=-1;
+snv=2;
+do{
+for(int i=1; i<=5;i++){
+    finbos[0][i-1]="          "+to_string(bhp)+"        ";
+}
+
+
+
+//___________________________________________________________________fáze 1
+
+
+if(bhp>100){
+for(int i=1;i<=12;i++){
+    cout << finbos[i-1][0];
+    if(i>=5){
+    cout << "    ";
+    cout << haz[i-5][5] << "  ";
+    cout << haz[i-5][4] << "  ";
+    cout << haz[i-5][3] << "  ";
+    cout << haz[i-5][2] << "  ";
+    cout << haz[i-5][1] << "  ";
+    }
+    cout << endl;
+}
+cout << "--------------------------------------------------------------------------------------------------" << endl;
+invahp();
+
+
+do{
+    RozFb();
+} while(pdes1>=1 && des!='s' && des!='f' && mbhp1>0);
+
+if(shld01==0){
+    php=php-1;
+if(phvb>0 && shld01==0){
+    if(phvb==1){
+        php=php-2;
+    }
+    if(phvb==2){
+        php=php-4;
+    }
+    if(phvb==3){
+        php=php-5;
+    }
+    if(phvb==4){
+        php=php-7;
+    }
+    if(phvb==5){
+        php=php-10;
+    }
+}
+
+shld01=0;
+}
+
+
+}
+
+if(bhp>101){
+    bhp=bhp+2;  // healování bosse není capnutý protože to může být dobrá featura- capování mám u healování
+}
+
+
+//___________________________________________________________________fáze 2
+
+
+
+if(bhp>80 && bhp<101){
+for(int i=1;i<=12;i++){
+    cout << finbos[i-1][1];
+    if(i>=5){
+    cout << "    ";
+    cout << haz[i-5][5] << "  ";
+    cout << haz[i-5][4] << "  ";
+    cout << haz[i-5][3] << "  ";
+    cout << haz[i-5][2] << "  ";
+    cout << haz[i-5][1] << "  ";
+    }
+    cout << endl;
+}
+cout << "--------------------------------------------------------------------------------------------------" << endl;
+invahp();
+
+
+do{
+    RozFb();
+} while(pdes1>=1 && des!='s' && des!='f' && mbhp1>0);
+
+if(shld01==0){
+    php=php-5;
+    if(smula=1){
+        php=php-2;
+    }
+if(phvb>0 && shld01==0){
+    if(phvb==1){
+        php=php-2;
+    }
+    if(phvb==2){
+        php=php-4;
+    }
+    if(phvb==3){
+        php=php-5;
+    }
+    if(phvb==4){
+        php=php-7;
+    }
+    if(phvb==5){
+        php=php-10;
+    }
+}
+smula=rand() % 4+1;
+
+}
+
+}
+
+
+
+
+//___________________________________________________________________fáze 3
+
+
+if(bhp>55 && bhp<81){
+for(int i=1;i<=12;i++){
+    cout << finbos[i-1][2];
+    if(i>=5){
+    cout << "    ";
+    cout << haz[i-5][5] << "  ";
+    cout << haz[i-5][4] << "  ";
+    cout << haz[i-5][3] << "  ";
+    cout << haz[i-5][2] << "  ";
+    cout << haz[i-5][1] << "  ";
+    }
+    cout << endl;
+}
+cout << "--------------------------------------------------------------------------------------------------" << endl;
+invahp();
+
+
+do{
+    RozFb();
+} while(pdes1>=1 && des!='s' && des!='f' && mbhp1>0);
+
+if(shld01==0){
+    php=php-4;
+    if(smula==1){
+        jed=2;
+    } else if(smula==2){
+        jed=3;
+    } else if(smula==3){
+        jed=5;
+    }
+if(phvb>0 && shld01==0){
+    if(phvb==1){
+        php=php-2;
+    }
+    if(phvb==2){
+        php=php-4;
+    }
+    if(phvb==3){
+        php=php-5;
+    }
+    if(phvb==4){
+        php=php-7;
+    }
+    if(phvb==5){
+        php=php-10;
+    }
+}
+}
+if(jed>0){
+    php=php-1;
+    if(smula==3){
+        php=php-1;
+    }
+}
+jed--;
+smula=rand() % 4+1;
+if(bhp<55){
+    bhp=55;
+}
+}
+
+
+
+
+//___________________________________________________________________fáze 4
+
+
+if(bhp==55 && uzbyl==0){
+for(int z=1; z<=10;z++){
+bhp=55;
+for(int i=1; i<=5;i++){
+    finbos[0][i-1]="          "+to_string(bhp)+"        ";
+}
+
+for(int i=1;i<=12;i++){
+    cout << finbos[i-1][3];
+    if(i>=5){
+    cout << "    ";
+    cout << haz[i-5][5] << "  ";
+    cout << haz[i-5][4] << "  ";
+    cout << haz[i-5][3] << "  ";
+    cout << haz[i-5][2] << "  ";
+    cout << haz[i-5][1] << "  ";
+    }
+    cout << endl;
+}
+cout << "--------------------------------------------------------------------------------------------------" << endl;
+invahp();
+
+
+do{
+    RozFb();
+} while(pdes1>=1 && des!='s' && des!='f' && mbhp1>0);
+
+
+if(phvb>0 && shld01==0){
+    if(phvb==1){
+        php=php-2;
+    }
+    if(phvb==2){
+        php=php-4;
+    }
+    if(phvb==3){
+        php=php-5;
+    }
+    if(phvb==4){
+        php=php-7;
+    }
+    if(phvb==5){
+        php=php-10;
+    }
+}
+pdes1=2;
+shld01=0;
+if(z==7){
+     finbos[4][3]="        ___          ";
+ finbos[5][3]="       /   \\         ";
+ finbos[6][3]="      / ___ \\        ";
+ finbos[7][3]="     | _____ |       ";
+ finbos[8][3]="    ( -\\----- )      ";
+ finbos[9][3]="     | _|___ |       ";
+finbos[10][3]="     | ----- |       ";
+finbos[11][3]="      \\     /        ";
+}
+if(z==9){
+     finbos[4][3]="        ___          ";
+ finbos[5][3]="       /   \\         ";
+ finbos[6][3]="      / ___ \\        ";
+ finbos[7][3]="     | __/__ |       ";
+ finbos[8][3]="    ( -\\/---- )      ";
+ finbos[9][3]="     | _|___ |       ";
+finbos[10][3]="     | ----- |       ";
+finbos[11][3]="      \\     /        ";
+}
+}
+
+snv=1;
+uzbyl++;
+bhp=54;
+}
+
+
+
+
+
+//___________________________________________________________________fáze 5!!!
+
+
+if(bhp<55){
+if(snv==1){
+for(int i=1;i<=15;i++){
+    cout << finbos[i-1][4];
+    if(i>=8){
+    cout << "    ";
+    cout << haz[i-8][5] << "  ";
+    cout << haz[i-8][4] << "  ";
+    cout << haz[i-8][3] << "  ";
+    cout << haz[i-8][2] << "  ";
+    cout << haz[i-8][1] << "  ";
+    }
+    cout << endl;
+siud=2;
+}
+} else{
+for(int i=1;i<=12;i++){
+    cout << finbos[i-1][4];
+    if(i>=5){
+    cout << "    ";
+    cout << haz[i-5][5] << "  ";
+    cout << haz[i-5][4] << "  ";
+    cout << haz[i-5][3] << "  ";
+    cout << haz[i-5][2] << "  ";
+    cout << haz[i-5][1] << "  ";
+    }
+    cout << endl;
+}}
+if(siud==1){
+    pdes1=1;
+}
+cout << "--------------------------------------------------------------------------------------------------" << endl;
+invahp();
+
+
+
+do{
+    RozFb();
+} while(pdes1>=1 && des!='s' && des!='f' && mbhp1>0);
+
+if(shld01==0){
+    php=php-16;
+    if(smula==1){
+        jed=2;
+    if(siud==1){
+        php=php-8;
+    }
+    } else if(smula==2){
+        php=php-16;
+    }
+if(phvb>0 && shld01==0){
+    if(phvb==1){
+        php=php-2;
+    }
+    if(phvb==2){
+        php=php-4;
+    }
+    if(phvb==3){
+        php=php-5;
+    }
+    if(phvb==4){
+        php=php-7;
+    }
+    if(phvb==5){
+        php=php-10;
+    }
+}
+}
+if(jed>0){
+    php=php-1;
+    if(smula==3){
+        php=php-1;
+    }
+}
+jed--;
+smula=rand() % 4+1;
+snv=rand() % 2+1;
+if(siud==2){
+    snv=2;
+}
+}
+
+
+//_________________________________________________________________konec cyklu final bosse
+siud--;
+pdes1=2;
+shld01=0;
+} while(bhp>0 && php>0 && des!='f');
+
+}
+if(bhp<1){
+    do{
+    cout << "dokazal jsi to! zabil jsi finalniho bosse!!!" << endl << "chces ukoncit (e) nebo pokracovat (c) ";
+    cin >> fdes;
+    if(fdes=='e'){
+        return 0;
+    }
+    } while(fdes!='c');
+}
+} while(des!='f' && php>0);
+cout << "Peace at last";
+}
