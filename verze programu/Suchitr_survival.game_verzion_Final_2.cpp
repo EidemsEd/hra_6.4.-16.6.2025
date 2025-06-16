@@ -48,7 +48,7 @@ int rullete=rand() % 60;
 float s1, s2, s3;
 
 
-int php=30, mhp=10, mbhp=50, bhp=125;  // player hp; mob hp, midboss hp; final boss hp
+int php=22, mhp=10, mbhp=50, bhp=125;  // player hp; mob hp, midboss hp; final boss hp
 int mbhp1=mbhp;
 int kills=0;  // killy
 int Bkills=0;  // kolik jsi zabil bossů
@@ -1641,8 +1641,8 @@ wps[4][0]="        kopi        ";
 wps[5][0]="       katana       ";
 wps[6][0]="    motorová pila   ";
 
-wps[0][1]="4";
-wps[1][1]="6";
+wps[0][1]="3";
+wps[1][1]="5";
 wps[2][1]="7";
 wps[3][1]="10";
 wps[4][1]="11";
@@ -1761,7 +1761,7 @@ ch[5][0]=" _____ ";
 ch[6][0]="| () | ";
 ch[7][0]="|    | ";
 
-pla[0][0]="      ";
+pla[0][0]="player";
 pla[1][0]="      ";
 pla[2][0]=" .___ ";
 pla[3][0]=" |. ,|";
@@ -1877,7 +1877,7 @@ do{
 do{
 
 // ___________________________________posouvání_pozadí
-cout << " ";
+cout << "    ";
 for (int i=1;i!=19;i++){
     if(i<10){
        cout << "     " << i;
@@ -1892,6 +1892,7 @@ for (int u=1; u!=19; u++){
     }
 cout << endl;
 for (int i=1; i!=9; i++){
+        cout << pla[i-1][0] << " ";
     for (int u=2; u!=19; u++){
         cout << enst[i-1][u-1];
     }
@@ -1905,7 +1906,7 @@ for (int i=1; i!=9; i++){
     }
 }
 for (int i=1; i!=9; i++){
-    enst[i-1][18]= "       ";
+    enst[i-1][18]= "     ";
 }
 for (int i=1; i!=9; i++){
     for (int u=2; u!=18; u++){
@@ -2073,7 +2074,10 @@ jetu();
 shld=false;
 
 
-
+if(kills>=gotsg){
+    cout << "uz mas dostatek killu a dohral jsi hru. Jdi ven se socializovat nebo alespon se dotkni travi venku.";
+    return 0;
+}
 //_________________________________________________________________________________________________________________________________________________________________________________________________
 cpk++;
 } while (kills<pppndb && des!='f' && php>0 && des!='g');
@@ -2081,7 +2085,7 @@ cpk++;
 
 
 
-if(des!='f' && Bkills<2){
+if(des!='f' && Bkills<2 && php>0){
 pmb=1;
 phvb=3;
 stun=-1;
@@ -2095,7 +2099,7 @@ cout << "       Pripravuje se na utok" << endl;
 cout << "                           " << mbhp1 << endl;
 cout << "                " << midbos[0] << endl;
 for (int i=1; i!=9; i++){
-    cout << pla[i-1][0];
+    cout << pla[i-1][0] << "  ";
     cout << "               ";
     cout << midbos[i];
     cout << "       ";
@@ -2111,7 +2115,7 @@ cout << "            " << mbhp1 << endl;
 cout << " " << midbos[0] << endl;
 for (int i=1; i!=9; i++){
 
-    cout << pla[i-1][0];
+    cout << pla[i-1][0] << "  ";
     cout << midbos[i];
     cout << "               ";
     cout << "       ";
@@ -2127,7 +2131,7 @@ cout << "            " << mbhp1 << endl;
 cout << " " << midbos[0] << endl;
 for (int i=1; i!=9; i++){
 
-    cout << pla[i-1][0];
+    cout << pla[i-1][0] << "  ";
     cout << midbos[i];
     cout << "               ";
     cout << "       ";
@@ -2142,7 +2146,7 @@ cout << "       Pozor pouziva svuj retez jako bic!" << endl;
 cout << "                           " << mbhp1 << endl;
 cout << "                " << midbos[0] << endl;
 for (int i=1; i!=9; i++){
-    cout << pla[i-1][0];
+    cout << pla[i-1][0] << "  ";
     cout << "               ";
     cout << midbos[i];
     cout << "       ";
@@ -2202,7 +2206,7 @@ for (int i=1; i<=8; i++){
 
 //_____________________________________________________________________________________________________________________________________Final_Boss_____________________________________________________________
 
-if(des!='f' && Bkills==2){
+if(des!='f' && Bkills==2 && php>0){
 smula=rand() % 4+1;
 pppndb=gotsg;
 phvb=5;
@@ -2210,6 +2214,7 @@ pdes1=2;
 uzbyl=0;
 siud=-1;
 snv=2;
+stun=-1;
 do{
 for(int i=1; i<=5;i++){
     finbos[0][i-1]="          "+to_string(bhp)+"        ";
@@ -2222,6 +2227,12 @@ for(int i=1; i<=5;i++){
 
 if(bhp>100){
 for(int i=1;i<=12;i++){
+    if(i<5){
+        cout << "      ";
+    }
+    if(i>=5){
+        cout << pla[i-5][0] << "  ";
+    }
     cout << finbos[i-1][0];
     if(i>=5){
     cout << "    ";
@@ -2233,7 +2244,7 @@ for(int i=1;i<=12;i++){
     }
     cout << endl;
 }
-cout << "--------------------------------------------------------------------------------------------------" << endl;
+cout << "-------------------------------------------------------------------------------------------------------" << endl;
 invahp();
 
 
@@ -2278,6 +2289,12 @@ if(bhp>101){
 
 if(bhp>80 && bhp<101){
 for(int i=1;i<=12;i++){
+    if(i<5){
+        cout << "      ";
+    }
+    if(i>=5){
+        cout << pla[i-5][0] << "  ";
+    }
     cout << finbos[i-1][1];
     if(i>=5){
     cout << "    ";
@@ -2333,6 +2350,12 @@ smula=rand() % 4+1;
 
 if(bhp>55 && bhp<81){
 for(int i=1;i<=12;i++){
+    if(i<5){
+        cout << "      ";
+    }
+    if(i>=5){
+        cout << pla[i-5][0] << "  ";
+    }
     cout << finbos[i-1][2];
     if(i>=5){
     cout << "    ";
@@ -2406,6 +2429,12 @@ for(int i=1; i<=5;i++){
 }
 
 for(int i=1;i<=12;i++){
+    if(i<5){
+        cout << "      ";
+    }
+    if(i>=5){
+        cout << pla[i-5][0];
+    }
     cout << finbos[i-1][3];
     if(i>=5){
     cout << "    ";
@@ -2482,6 +2511,12 @@ bhp=54;
 if(bhp<55){
 if(snv==1){
 for(int i=1;i<=15;i++){
+    if(i<8){
+        cout << "      ";
+    }
+    if(i>=8){
+        cout << pla[i-8][0] << "  ";
+    }
     cout << finbos[i-1][4];
     if(i>=8){
     cout << "    ";
@@ -2496,6 +2531,12 @@ siud=2;
 }
 } else{
 for(int i=1;i<=12;i++){
+    if(i<5){
+        cout << "       ";
+    }
+    if(i>=5){
+        cout << pla[i-5][0] << "  ";
+    }
     cout << finbos[i-1][4];
     if(i>=5){
     cout << "    ";
@@ -2511,6 +2552,7 @@ if(siud==1){
     pdes1=1;
 }
 cout << "--------------------------------------------------------------------------------------------------" << endl;
+if(stun<1){
 invahp();
 
 
@@ -2518,6 +2560,7 @@ invahp();
 do{
     RozFb();
 } while(pdes1>=1 && des!='s' && des!='f' && mbhp1>0);
+}
 
 if(shld01==0){
     php=php-16;
@@ -2525,6 +2568,7 @@ if(shld01==0){
         jed=2;
     if(siud==1){
         php=php-8;
+        stun=2;
     }
     } else if(smula==2){
         php=php-16;
@@ -2559,6 +2603,7 @@ snv=rand() % 2+1;
 if(siud==2){
     snv=2;
 }
+stun--;
 }
 
 
@@ -2579,5 +2624,6 @@ if(bhp<1){
     } while(fdes!='c');
 }
 } while(des!='f' && php>0);
-cout << "Peace at last";
-}
+if(php<1){
+cout << "Peace at last" << endl;
+}}
